@@ -1,0 +1,2 @@
+git+https://github.com/simcoon/simcoon.git#egg=simcoon
+git+https://github.com/fedoo/fedoo.git#egg=fedoo

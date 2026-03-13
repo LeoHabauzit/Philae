@@ -1,0 +1,11 @@
+LICENSE
+README.md
+setup.py
+Umat/__init__.py
+Umat/loi_SMANI_props.py
+Umat/loi_SMAUT_props.py
+philae.egg-info/PKG-INFO
+philae.egg-info/SOURCES.txt
+philae.egg-info/dependency_links.txt
+philae.egg-info/requires.txt
+philae.egg-info/top_level.txt

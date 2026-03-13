@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: philae
+Version: 0.1.0
+Summary: Description de votre projet
+Home-page: https://github.com/LeoHabauzit/Philae
+Author: LeoHabauzit
+Requires-Python: >=3.8
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: IPython
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
