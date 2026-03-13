@@ -9,3 +9,7 @@ philae.egg-info/SOURCES.txt
 philae.egg-info/dependency_links.txt
 philae.egg-info/requires.txt
 philae.egg-info/top_level.txt
+simuEF/__init__.py
+simuEF/multi_fea_and_process.py
+simuEF/plot_fea_results.py
+simuEF/tools_fea.py
