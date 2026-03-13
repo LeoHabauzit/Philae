@@ -422,7 +422,7 @@ def vect_props_smani(props_var, props_smaut):
 
 def calc_cost_smani(props_var, list_typesim, xi_modif, cell):
     losses = []
-    props_smaut = load_variable_props(f"params_smaut_{cell}.txt")
+    props_smaut = load_variable_props(f"results_params/params_smaut_{cell}.txt")
     props = vect_props_smani(props_var, props_smaut)
     # print(props_var)
     for typesim, theta in list_typesim.items():
@@ -643,12 +643,19 @@ def evol_diff_smaut(bounds, cell, n_iter):
 
     all_params["smaut"] = result.x
     df = pd.DataFrame(all_params)
-    df.to_csv(f"params_smaut_{cell}.txt", index=False, sep=" ", float_format="%.8e")
+    df.to_csv(
+        f"results_params/params_smaut_{cell}.txt",
+        index=False,
+        sep=" ",
+        float_format="%.8e",
+    )
 
 
 def evol_diff_smani(bounds, cell, xi_modif, n_iter):
     all_params_ani = {}
-    props_smaut = vect_props_smaut_test(load_variable_props(f"params_smaut_{cell}.txt"))
+    props_smaut = vect_props_smaut_test(
+        load_variable_props(f"results_params/params_smaut_{cell}.txt")
+    )
 
     xi_modif = right_artificial_xi(props_smaut, cell)
     typesim_to_loads = {
@@ -676,7 +683,12 @@ def evol_diff_smani(bounds, cell, xi_modif, n_iter):
 
     all_params_ani["smani"] = result.x
     df = pd.DataFrame(all_params_ani)
-    df.to_csv(f"params_smani_{cell}.txt", index=False, sep=" ", float_format="%.8e")
+    df.to_csv(
+        f"results_params/params_smani_{cell}.txt",
+        index=False,
+        sep=" ",
+        float_format="%.8e",
+    )
 
 
 def run_homogeneisation(cell):
@@ -691,9 +703,11 @@ def run_homogeneisation(cell):
         (0.1, 5),  # b  # n
     ]
 
-    # evol_diff_smaut(bounds, cell=cell, n_iter=40)
+    evol_diff_smaut(bounds, cell=cell, n_iter=40)
     ######################################################Iso_surface################################################""
-    props_smaut = vect_props_smaut_test(load_variable_props(f"params_smaut_{cell}.txt"))
+    props_smaut = vect_props_smaut_test(
+        load_variable_props(f"results_params/params_smaut_{cell}.txt")
+    )
     xi_modif = right_artificial_xi(props_smaut, cell)
 
     bounds = [
