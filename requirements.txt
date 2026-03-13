@@ -1,0 +1,5 @@
+numpy
+pandas
+IPython
+git+https://github.com/simcoon/simcoon.git
+git+https://github.com/fedoo/fedoo.git
