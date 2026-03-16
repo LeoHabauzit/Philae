@@ -41,33 +41,47 @@ typesim = "tension"
 # )
 # E = np.vstack([et11, et22, et33, et12, et13, et23]).T
 # et = np.array([mises_strain(v) for v in E])
+# typesim_to_loads = {
+#     # "tension",
+#     "biaxial_tension",
+#     "compression",
+#     "biaxial_compression",
+#     "tencomp",
+#     "shear",
+# }
+# for typesim in typesim_to_loads:
+#     process_data_fea(typesim, "Cuboctahedron40")
 
-# process_data_fea("tension", "Cuboctahedron40")
+# stress_exp = np.loadtxt(
+#     f"datas_simu/Cuboctahedron40/SXX/data_tension/Stress_tension.txt"
+# )
+# strain_mises_exp = np.loadtxt(
+#     f"datas_simu/Cuboctahedron40/SXX/data_tension/Transformation_strain_tension.txt"
+# )
+# strain_labels = [
+#     "et11",
+#     "et22",
+#     "et33",
+#     "et12",
+#     "et13",
+#     "et23",
+# ]
+# strain_mises = np.zeros(6)
+# for k, label in enumerate(strain_labels):
+#     plt.figure()
+#     et = np.loadtxt(f"{label}.txt")
+#     strain_mises[k] = et[-1]
+#     plt.plot(et, stress_exp, label=f"{label}")
 
-stress_exp = np.loadtxt(
-    f"datas_simu/Cuboctahedron40/SXX/data_tension/Stress_tension.txt"
-)
-strain_mises_exp = np.loadtxt(
-    f"datas_simu/Cuboctahedron40/SXX/data_tension/Transformation_strain_tension.txt"
-)
-strain_labels = [
-    "et11",
-    "et22",
-    "et33",
-    "et12",
-    "et13",
-    "et23",
-]
-strain_mises = np.zeros(6)
-for k, label in enumerate(strain_labels):
-    plt.figure()
-    et = np.loadtxt(f"{label}.txt")
-    strain_mises[k] = et[-1]
-    plt.plot(et, stress_exp, label=f"{label}")
+# print(mises_strain_fea(strain_mises))
+# plt.figure()
+# plt.plot(strain_mises_exp, stress_exp)
+# # plt.plot(et, s11)
+# plt.legend()
+# plt.show()
 
-print(mises_strain_fea(strain_mises))
-plt.figure()
-plt.plot(strain_mises_exp, stress_exp)
-# plt.plot(et, s11)
-plt.legend()
+fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
+plot_stress_strain_loads(props, cell=cell, axs=axes_strain)
+fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
+plot_stress_mises_strain_loads(props, cell, axes_strain)
 plt.show()

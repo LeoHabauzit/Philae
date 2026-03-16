@@ -236,10 +236,10 @@ def process_data_fea(typesim, cell):
             data_dir / f"Transformation_strain_{results_dir}.txt",
             transformation_strain_array,
         )
-        strain_labels = ["et11", "et22", "et33", "et12", "et13", "et23"]
+        # strain_labels = ["et11", "et22", "et33", "et12", "et13", "et23"]
 
-        for k, label in enumerate(strain_labels):
-            np.savetxt(f"{label}.txt", et_arrays[k])
+        # for k, label in enumerate(strain_labels):
+        #     np.savetxt(f"{label}.txt", et_arrays[k])
 
 
 def erase_fea_file(typesim):

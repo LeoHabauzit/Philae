@@ -25,7 +25,7 @@ for typesim in typesim_to_loads.keys():
     load = typesim_to_loads.get(typesim)
     cell_fea(props, material_law, typesim, load, cell)
     process_data_fea(typesim, cell)
-#     erase_fea_file(typesim)
+    erase_fea_file(typesim)
 # run_homogeneisation(cell=cell)
 
 

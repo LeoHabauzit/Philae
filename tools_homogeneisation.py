@@ -621,6 +621,116 @@ def plot_stress_strain_loads(full_props, cell, axs):
     # plt.ylabel("S11 [MPa]")
 
 
+def plot_stress_mises_strain_loads(full_props, cell, axs):
+    data_simu_dir = f"datas_simu/{cell}"
+    typesim_to_loads = {
+        "tension",
+        "biaxial_tension",
+        "compression",
+        "biaxial_compression",
+        "tencomp",
+        "shear",
+    }
+
+    for i, typesim in enumerate(sorted(typesim_to_loads)):
+        losses = []
+        row = i // 3
+        col = i % 3
+
+        ax = axs[row, col]
+        results_dir = typesim
+        umat_smaut(full_props, typesim)
+
+        outputfile_global = f"Umat/results_smaut/results_{typesim}_global-0.txt"
+
+        (
+            e11,
+            e22,
+            e33,
+            e12,
+            e13,
+            e23,
+            s11,
+            s22,
+            s33,
+            s12,
+            s13,
+            s23,
+            xi,
+            et11,
+            et22,
+            et33,
+            et12,
+            et13,
+            et23,
+        ) = np.loadtxt(
+            outputfile_global,
+            usecols=(
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+            ),
+            unpack=True,
+        )
+        E = np.vstack([et11, et22, et33, et12, et13, et23]).T
+        et = np.array([mises_strain(v) for v in E])
+
+        if typesim == "shear":
+            strain_num = et
+            stress_num = s12
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_mises_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/Transformation_strain_{typesim}.txt"
+            )
+        else:
+            strain_num = et
+            stress_num = s11
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_mises_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/Transformation_strain_{typesim}.txt"
+            )
+
+        ax.plot(
+            strain_mises_exp,
+            stress_exp,
+            label=typesim,
+        )
+        ax.plot(strain_num, stress_num, c="red", label="UMAT SMA")
+        ax.set_xlabel("E11 [%]")
+        ax.set_ylabel("S11 [MPa]")
+        ax.grid()
+        ax.legend()
+    plt.suptitle(f"{cell}")
+
+    plt.tight_layout()
+
+    # plt.title(f"Plot {typesim}")
+    plt.legend(loc="upper left", fontsize=8)
+    plt.grid(True)
+    # plt.xlabel("E11[%]")
+    # plt.ylabel("S11 [MPa]")
+
+
 def evol_diff_smaut(bounds, cell, n_iter):
     all_params = {}
     typesim_to_loads = {
