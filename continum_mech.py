@@ -9,6 +9,14 @@ def dev(v):
     return vdev
 
 
+def mises_strain(v):
+    vdev = dev(v)
+    vdev2 = vdev.copy()
+
+    vdev2[3:] *= 0.5
+    return np.sqrt(2.0 / 3.0 * np.sum(vdev * vdev2))
+
+
 def v2t(v):
     v = np.asarray(v, dtype=float)
     m = np.zeros((3, 3))
@@ -23,7 +31,7 @@ def v2t(v):
 def J2_stress(v):
     v = np.asarray(v, dtype=float)
     vdev = dev(v)
-    vdev2 = vdev
+    vdev2 = vdev.copy()
     for i in range(3, 6):
         vdev2[i] = 2 * vdev2[i]
     return 0.5 * np.sum(vdev * vdev2)

@@ -5,6 +5,22 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
+def dev_fea(v):
+    v = np.asarray(v, dtype=float)
+    mean_stress = (v[0] + v[1] + v[2]) / 3
+    vdev = v.copy()
+    vdev[0:3] -= mean_stress
+    return vdev
+
+
+def mises_strain_fea(v):
+    vdev = dev_fea(v)
+    vdev2 = vdev.copy()
+
+    vdev2[3:] *= 0.5
+    return np.sqrt(2.0 / 3.0 * np.sum(vdev * vdev2))
+
+
 def read_props(filename):
     values = {}
 
@@ -167,6 +183,9 @@ def process_data_fea(typesim, cell):
         xi_array = np.zeros(n_iter + 1)
         meanStrain_array = np.zeros(n_iter + 1)
 
+        transformation_strain_array = np.zeros(n_iter + 1)
+        et_arrays = np.zeros((6, n_iter + 1))
+
         print(n_iter)
 
         data_dir = base_dir / f"S{component}" / f"data_{results_dir}"
@@ -191,15 +210,36 @@ def process_data_fea(typesim, cell):
             )
             meanStrain_array[i + 1] = data_Mstrain[0]
 
-            data_xi = dataset.get_data(field="Statev", data_type="GaussPoint")[1]
-            vol_avg_xi = (density / mesh_volume) * dataset.mesh.integrate_field(
-                field=data_xi, type_field="GaussPoint"
+            statev = dataset.get_data(field="Statev", data_type="GaussPoint")[:8]
+
+            cell_volume = density / mesh_volume
+
+            xi_array[i + 1] = cell_volume * dataset.mesh.integrate_field(
+                statev[1], "GaussPoint"
             )
-            xi_array[i + 1] = vol_avg_xi
+
+            vol_avg_strain = np.array(
+                [
+                    cell_volume * dataset.mesh.integrate_field(statev[j], "GaussPoint")
+                    for j in range(2, 8)
+                ]
+            )
+
+            et_arrays[:, i + 1] = vol_avg_strain
+
+            transformation_strain_array[i + 1] = mises_strain_fea(vol_avg_strain)
 
         np.savetxt(data_dir / f"Stress_{results_dir}.txt", stress_array)
         np.savetxt(data_dir / f"Xi_{results_dir}.txt", xi_array)
         np.savetxt(data_dir / f"MeanStrain_{results_dir}.txt", meanStrain_array)
+        np.savetxt(
+            data_dir / f"Transformation_strain_{results_dir}.txt",
+            transformation_strain_array,
+        )
+        strain_labels = ["et11", "et22", "et33", "et12", "et13", "et23"]
+
+        for k, label in enumerate(strain_labels):
+            np.savetxt(f"{label}.txt", et_arrays[k])
 
 
 def erase_fea_file(typesim):
