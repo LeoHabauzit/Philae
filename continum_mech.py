@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import PchipInterpolator
 
 
 def dev(v):
@@ -90,3 +91,16 @@ def stress_vector_from_polar(r, theta, plane):
         return np.array([r * np.cos(theta), 0, 0, r * np.sin(theta), 0, 0])
     else:
         raise ValueError("plane doit être 's11-s22' ou 's11-s12'")
+
+
+def prepare_interp(stress, xi):
+    # tri
+    idx = np.argsort(stress)
+    stress = stress[idx]
+    xi = xi[idx]
+
+    # suppression des doublons
+    stress_unique, indices = np.unique(stress, return_index=True)
+    xi_unique = xi[indices]
+
+    return PchipInterpolator(stress_unique, xi_unique)

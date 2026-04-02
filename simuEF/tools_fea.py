@@ -162,6 +162,72 @@ def cell_fea(props, material_law, typesim, load_typesim, cell):
     pb.nlsolve(dt=0.2, tmax=1, update_dt=True, print_info=1, interval_output=0.01)
 
 
+def process_element_repartition(typesim, cell):
+    base_dir = Path("datas_simu") / cell
+
+    results_dir = typesim
+    dataset = fd.read_data(f"simuEF/{typesim}/{typesim}.fdz")
+    if typesim == "shear":
+        list_component = {"XY"}
+    elif typesim == "tencomp":
+        list_component = {"XX", "YY"}
+    else:
+        list_component = {"XX"}
+    for component in list_component:
+        mesh_volume = dataset.mesh.to_pyvista().volume
+        rve_volume = dataset.mesh.bounding_box.volume
+        density = mesh_volume / rve_volume
+
+        n_iter = dataset.n_iter
+        # stress_array = np.zeros(n_iter + 1)
+        xi_array = np.zeros(n_iter + 1)
+        # meanStrain_array = np.zeros(n_iter + 1)
+
+        # transformation_strain_array = np.zeros(n_iter + 1)
+        # et_arrays = np.zeros((6, n_iter + 1))
+
+        print(n_iter)
+
+        data_dir = base_dir / f"S{component}" / f"data_{results_dir}"
+        data_dir.mkdir(parents=True, exist_ok=True)
+
+        # list_iter = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        fig, axes = plt.subplots(5, 5, figsize=(10, 10))
+        axes = axes.flatten()
+        k = 0
+        for i in range(n_iter):
+            dataset.load(i)
+            print(i)
+
+            statev = dataset.get_data(field="Statev", data_type="GaussPoint")[:2]
+
+            cell_volume = density / mesh_volume
+
+            xi_array[i + 1] = cell_volume * dataset.mesh.integrate_field(
+                statev[1], "GaussPoint"
+            )
+
+            if (i - 1) % 4 == 0:  # sélectionne 1 itération sur 4
+                ax = axes[k]
+                k += 1
+                fractions = statev[1]
+                bins = np.linspace(0, 1, 101)
+                ax.hist(fractions, bins=bins, edgecolor="black")
+
+        plt.xlabel("Fraction volumique")
+        plt.ylabel("Nombre d'éléments")
+        plt.title("Distribution des transformations")
+        plt.show()
+        # np.savetxt(
+        #     data_dir / f"Transformation_strain_{results_dir}.txt",
+        #     transformation_strain_array,
+        # )
+        # strain_labels = ["et11", "et22", "et33", "et12", "et13", "et23"]
+
+        # for k, label in enumerate(strain_labels):
+        #     np.savetxt(f"{label}.txt", et_arrays[k])
+
+
 def process_data_fea(typesim, cell):
     base_dir = Path("datas_simu") / cell
 
@@ -183,14 +249,18 @@ def process_data_fea(typesim, cell):
         xi_array = np.zeros(n_iter + 1)
         meanStrain_array = np.zeros(n_iter + 1)
 
-        transformation_strain_array = np.zeros(n_iter + 1)
-        et_arrays = np.zeros((6, n_iter + 1))
+        # transformation_strain_array = np.zeros(n_iter + 1)
+        # et_arrays = np.zeros((6, n_iter + 1))
 
         print(n_iter)
 
         data_dir = base_dir / f"S{component}" / f"data_{results_dir}"
         data_dir.mkdir(parents=True, exist_ok=True)
 
+        # list_iter = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        k = 0
+        fig, axes = plt.subplots(5, 5, figsize=(10, 10))
+        axes = axes.flatten()
         for i in range(n_iter):
             dataset.load(i)
             print(i)
@@ -210,7 +280,7 @@ def process_data_fea(typesim, cell):
             )
             meanStrain_array[i + 1] = data_Mstrain[0]
 
-            statev = dataset.get_data(field="Statev", data_type="GaussPoint")[:8]
+            statev = dataset.get_data(field="Statev", data_type="GaussPoint")[:2]
 
             cell_volume = density / mesh_volume
 
@@ -218,24 +288,36 @@ def process_data_fea(typesim, cell):
                 statev[1], "GaussPoint"
             )
 
-            vol_avg_strain = np.array(
-                [
-                    cell_volume * dataset.mesh.integrate_field(statev[j], "GaussPoint")
-                    for j in range(2, 8)
-                ]
-            )
+            if (i - 1) % 4 == 0:  # sélectionne 1 itération sur 4
+                ax = axes[k]
+                k += 1
+                fractions = statev[1]
+                bins = np.linspace(0, 1, 101)
+                ax.hist(fractions, bins=bins, edgecolor="black")
 
-            et_arrays[:, i + 1] = vol_avg_strain
+            # vol_avg_strain = np.array(
+            #     [
+            #         cell_volume * dataset.mesh.integrate_field(statev[j], "GaussPoint")
+            #         for j in range(2, 8)
+            #     ]
+            # )
 
-            transformation_strain_array[i + 1] = mises_strain_fea(vol_avg_strain)
+            # et_arrays[:, i + 1] = vol_avg_strain
+
+            # transformation_strain_array[i + 1] = mises_strain_fea(vol_avg_strain)
 
         np.savetxt(data_dir / f"Stress_{results_dir}.txt", stress_array)
         np.savetxt(data_dir / f"Xi_{results_dir}.txt", xi_array)
         np.savetxt(data_dir / f"MeanStrain_{results_dir}.txt", meanStrain_array)
-        np.savetxt(
-            data_dir / f"Transformation_strain_{results_dir}.txt",
-            transformation_strain_array,
-        )
+
+        plt.xlabel("Fraction volumique")
+        plt.ylabel("Nombre d'éléments")
+        plt.title("Distribution des transformations")
+        plt.show()
+        # np.savetxt(
+        #     data_dir / f"Transformation_strain_{results_dir}.txt",
+        #     transformation_strain_array,
+        # )
         # strain_labels = ["et11", "et22", "et33", "et12", "et13", "et23"]
 
         # for k, label in enumerate(strain_labels):

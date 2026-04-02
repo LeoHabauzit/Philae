@@ -1,6 +1,6 @@
 import numpy as np
 import os, sys
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, PchipInterpolator
 from scipy.optimize import root_scalar
 from plot_criteria import *
 import matplotlib.pyplot as plt
@@ -619,6 +619,96 @@ def plot_stress_strain_loads(full_props, cell, axs):
     plt.grid(True)
     # plt.xlabel("E11[%]")
     # plt.ylabel("S11 [MPa]")
+
+
+def plot_xi_stress(full_props, cell, axs):
+    data_simu_dir = f"datas_simu/{cell}"
+    typesim_to_loads = {
+        "tension",
+        "biaxial_tension",
+        "compression",
+        "biaxial_compression",
+        "tencomp",
+        "shear",
+    }
+    index = 50
+
+    for i, typesim in enumerate(sorted(typesim_to_loads)):
+        losses = []
+        row = i // 3
+        col = i % 3
+
+        ax = axs[row, col]
+        results_dir = typesim
+        umat_smaut(full_props, typesim)
+
+        outputfile_global = f"Umat/results_smaut/results_{typesim}_global-0.txt"
+
+        e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23, xi = np.loadtxt(
+            outputfile_global,
+            usecols=(8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 25),
+            unpack=True,
+        )
+        xi_num = xi
+        xi_exp = np.loadtxt(
+            f"{data_simu_dir}/SXY/data_{results_dir}/Xi_{results_dir}.txt"
+        )
+        print(len(xi), len(xi_exp))
+        if typesim == "shear":
+            stress_num = s12
+            strain_num = e12
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/MeanStrain_{results_dir}.txt"
+            )
+            # xi_exp = np.loadtxt(
+            #     f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
+            # )
+        else:
+            stress_num = s11
+            strain_num = e11
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/MeanStrain_{results_dir}.txt"
+            )
+            # xi_exp = np.loadtxt(
+            #     f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
+            # )
+        stress_min = max(np.min(stress_num), np.min(stress_exp))
+        stress_max = min(np.max(stress_num), np.max(stress_exp))
+        stress_common = np.linspace(stress_min, stress_max, 200)
+
+        strain_min = max(np.min(strain_num), np.min(strain_exp))
+        strain_max = min(np.max(strain_num), np.max(strain_exp))
+        strain_common = np.linspace(strain_min, strain_max, 200)
+
+        # --- interpolations ---
+        interp_num = prepare_interp(stress_num, xi_num)
+        interp_exp = prepare_interp(stress_exp, xi_exp)
+
+        xi_num_interp = interp_num(stress_common)
+        xi_exp_interp = interp_exp(stress_common)
+
+        # --- plots ---
+        ax.plot(stress_common, xi_num_interp, c="green", label="UMAT SMA")
+        ax.plot(stress_common, xi_exp_interp, label=typesim)
+        ratio = xi_exp_interp / (xi_num_interp + 1e-3)
+        ax.plot(stress_common, ratio, label="ratio")
+        ax.set_xlabel("S11 [MPa]")
+        ax.set_ylabel("f [-]")
+        ax.grid()
+        ax.legend()
+    plt.suptitle(f"{cell}")
+
+    plt.tight_layout()
+
+    # plt.title(f"Plot {typesim}")
+    plt.legend(loc="upper left", fontsize=8)
+    plt.grid(True)
 
 
 def plot_stress_mises_strain_loads(full_props, cell, axs):
