@@ -11,11 +11,9 @@ from pathlib import Path
 basedir = str(Path(__file__).parent)
 
 
-def umat_smani(props, typesim):
+def umat_sma(props, typesim, umat_name):
     dir = os.path.dirname(os.path.realpath("__file__"))
-    umat_name = (
-        "SMAAI"  # This is the 5 character code for the elastic-plastic subroutine
-    )
+
     nstatev = 50  # The number of scalar variables required, only the initial temperature is stored here
 
     ##local orientation
@@ -26,7 +24,7 @@ def umat_smani(props, typesim):
     corate_type = 3
 
     path_data = basedir + "/data"
-    path_results = basedir + "/results_smani/"
+    path_results = basedir + f"/results_{umat_name}/"
 
     # Run the simulation
     pathfile = f"path_{typesim}.txt"

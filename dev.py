@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 from tools_homogeneisation import *
-from Umat.loi_smaac_props import umat_smaac
+from Umat.loi_sma import umat_sma
 
 from simuEF.tools_fea import process_data_fea, mises_strain_fea
 import matplotlib.pyplot as plt
@@ -146,9 +146,9 @@ for i, typesim in enumerate(sorted(typesim_to_loads)):
     row = i // 3
     col = i % 3
     ax = axes_strain[row, col]
-    umat_smaac(props_ac, typesim)
+    umat_sma(props_ac, typesim, "SMAAC")
 
-    outputfile_global = f"Umat/results_smaac/results_{typesim}_global-0.txt"
+    outputfile_global = f"Umat/results_SMAAC/results_{typesim}_global-0.txt"
 
     e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23 = np.loadtxt(
         outputfile_global,
@@ -163,9 +163,9 @@ for i, typesim in enumerate(sorted(typesim_to_loads)):
         ax.plot(e11, s11, label=f"{typesim} AC", color="orange")
         ax.legend()
 
-    umat_smadi(props_di, typesim)
+    umat_sma(props_di, typesim, "SMADI")
 
-    outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
+    outputfile_global = f"Umat/results_SMADI/results_{typesim}_global-0.txt"
 
     e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23 = np.loadtxt(
         outputfile_global,
