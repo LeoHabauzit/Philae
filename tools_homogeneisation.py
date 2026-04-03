@@ -10,7 +10,7 @@ import pandas as pd
 # parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # sys.path.append(parent_dir)
-from Umat.loi_SMAUT_props import umat_smaut
+from Umat.loi_smadi_props import umat_smadi
 
 
 def setup_ax(ax, xlabel, ylabel):
@@ -50,7 +50,7 @@ def load_variable_props(filepath):
     return np.array(values)
 
 
-def calc_cost_smaut(props_var, list_typesim, cell):
+def calc_cost_smadi(props_var, list_typesim, cell):
     """Calcule la fonction de coût pour un jeu de paramètres donné et un type de simulation,
     en comparant les résultats numériques et expérimentaux (erreur quadratique moyenne)
 
@@ -65,9 +65,9 @@ def calc_cost_smaut(props_var, list_typesim, cell):
     data_simu_dir = f"datas_simu/{cell}"
     for typesim in list_typesim:
         results_dir = typesim
-        props = vect_props_smaut(props_var)
-        umat_smaut(props, typesim)
-        outputfile_global = f"Umat/results_smaut/results_{typesim}_global-0.txt"
+        props = vect_props_smadi(props_var)
+        umat_smadi(props, typesim)
+        outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23 = np.loadtxt(
             outputfile_global,
@@ -94,7 +94,7 @@ def calc_cost_smaut(props_var, list_typesim, cell):
     return loss
 
 
-def vect_props_smaut(props_var):
+def vect_props_smadi(props_var):
     """Transforme un vecteur de paramètres variables (E, Hmax, sigmacrit, C, dT, sigmacaliber)
     en un vecteur complet des propriétés attendu par la simulation UMAT.
 
@@ -102,7 +102,7 @@ def vect_props_smaut(props_var):
         props_var (_type_): vecteur props des propriétés a optimiser par l'évolution différentielle
 
     Returns:
-        full_props: vecteur props complet utilisée dans la simulation SMAUT
+        full_props: vecteur props complet utilisée dans la simulation smadi
     """
 
     E = props_var[0]
@@ -177,7 +177,7 @@ def vect_props_smaut(props_var):
     return full_props
 
 
-def vect_props_smaut_test(props_var):
+def vect_props_smadi_test(props_var):
     """Transforme un vecteur de paramètres variables (E, Hmax, sigmacrit, C, dT, sigmacaliber)
     en un vecteur complet des propriétés attendu par la simulation UMAT.
 
@@ -185,7 +185,7 @@ def vect_props_smaut_test(props_var):
         props_var (_type_): vecteur props des propriétés a optimiser par l'évolution différentielle
 
     Returns:
-        full_props: vecteur props complet utilisée dans la simulation SMAUT
+        full_props: vecteur props complet utilisée dans la simulation smadi
     """
 
     E = props_var[0]
@@ -277,6 +277,103 @@ def vect_props_smaut_test(props_var):
     return full_props
 
 
+def vect_props_smaac(props_var):
+    # E = props_var[0]
+    # Hmax = props_var[2]
+    # sigmacrit = props_var[3]
+    # b_prager = props_var[6]
+    # n_prager = props_var[7]
+    E = 67538
+    G = 25033
+    Hmax = 0.0418
+    sigmacrit = 0
+    b_prager = 0.5
+    n_prager = 2.0
+
+    E_A = E
+    E_M = E
+    nu_A = 0.349
+    nu_M = 0.349
+    G_A = G
+    G_M = G
+    alphaA = 1.0e-6
+    alphaM = 1.0e-6
+    flagT = 0.0
+    Hmin = 0.00
+    k1 = 0.008
+    C_A = 10
+    C_M = 10
+    sigmacaliber = 300
+    Ms0 = 250
+    Mf0 = 230
+    As0 = 240
+    Af0 = 260
+    n1 = 0.05
+    n2 = 0.05
+    n3 = 0.05
+    n4 = 0.05
+    b_prager = b_prager
+    n_prager = n_prager
+    c_lambda = 1.0e-6
+    p0_lambda = 1.0e-3
+    n_lambda = 1.0
+    alpha_lambda = 1.0e8
+
+    F = 0.5
+    L = 1.5
+    K = 0
+    F_dfa = F
+    G_dfa = F_dfa
+    H_dfa = F_dfa
+    L_dfa = L
+    M_dfa = L_dfa
+    N_dfa = L_dfa
+    K_dfa = K
+
+    full_props = np.array(
+        [
+            flagT,
+            E_A,
+            E_M,
+            G_A,
+            G_M,
+            nu_A,
+            nu_M,
+            alphaA,
+            alphaM,
+            Hmin,
+            Hmax,
+            k1,
+            sigmacrit,
+            C_A,
+            C_M,
+            Ms0,
+            Mf0,
+            As0,
+            Af0,
+            n1,
+            n2,
+            n3,
+            n4,
+            sigmacaliber,
+            b_prager,
+            n_prager,
+            c_lambda,
+            p0_lambda,
+            n_lambda,
+            alpha_lambda,
+            F_dfa,
+            G_dfa,
+            H_dfa,
+            L_dfa,
+            M_dfa,
+            N_dfa,
+            K_dfa,
+        ]
+    )
+    return full_props
+
+
 def find_first_stress_at_xi_limit(typesim, xi_lim, cell):
     data_simu_dir = f"datas_simu/{cell}"
     results_dir = typesim
@@ -319,7 +416,7 @@ def find_first_stress_at_xi_limit(typesim, xi_lim, cell):
     return s11[idx], s22[idx], s12[idx]
 
 
-def vect_props_smani(props_var, props_smaut):
+def vect_props_smani(props_var, props_smadi):
     """Transforme un vecteur de paramètres variables (E, Hmax, sigmacrit, C, dT, sigmacaliber)
     en un vecteur complet des propriétés attendu par la simulation UMAT.
 
@@ -327,7 +424,7 @@ def vect_props_smani(props_var, props_smaut):
         props_var (_type_): vecteur props des propriétés a optimiser par l'évolution différentielle
 
     Returns:
-        full_props: vecteur props complet utilisée dans la simulation SMAUT
+        full_props: vecteur props complet utilisée dans la simulation smadi
     """
 
     b_prager = props_var[0]
@@ -336,12 +433,12 @@ def vect_props_smani(props_var, props_smaut):
     L = props_var[3]
     K = props_var[4]
 
-    E = props_smaut[0]
-    C = props_smaut[1]
-    Hmax = props_smaut[2]
-    sigmacrit = props_smaut[3]
-    dT = props_smaut[4]
-    sigmacaliber = props_smaut[5]
+    E = props_smadi[0]
+    C = props_smadi[1]
+    Hmax = props_smadi[2]
+    sigmacrit = props_smadi[3]
+    dT = props_smadi[4]
+    sigmacaliber = props_smadi[5]
 
     nu = 0.42
     alpha = 1.0e-4
@@ -422,8 +519,8 @@ def vect_props_smani(props_var, props_smaut):
 
 def calc_cost_smani(props_var, list_typesim, xi_modif, cell):
     losses = []
-    props_smaut = load_variable_props(f"results_params/params_smaut_{cell}.txt")
-    props = vect_props_smani(props_var, props_smaut)
+    props_smadi = load_variable_props(f"results_params/params_smadi_{cell}.txt")
+    props = vect_props_smani(props_var, props_smadi)
     # print(props_var)
     for typesim, theta in list_typesim.items():
         # props = vect_props_smani(props_var)
@@ -571,9 +668,9 @@ def plot_stress_strain_loads(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_smaut(full_props, typesim)
+        umat_smadi(full_props, typesim)
 
-        outputfile_global = f"Umat/results_smaut/results_{typesim}_global-0.txt"
+        outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23, xi = np.loadtxt(
             outputfile_global,
@@ -640,9 +737,9 @@ def plot_xi_stress(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_smaut(full_props, typesim)
+        umat_smadi(full_props, typesim)
 
-        outputfile_global = f"Umat/results_smaut/results_{typesim}_global-0.txt"
+        outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23, xi = np.loadtxt(
             outputfile_global,
@@ -729,9 +826,9 @@ def plot_stress_mises_strain_loads(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_smaut(full_props, typesim)
+        umat_smadi(full_props, typesim)
 
-        outputfile_global = f"Umat/results_smaut/results_{typesim}_global-0.txt"
+        outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
         (
             e11,
@@ -821,7 +918,7 @@ def plot_stress_mises_strain_loads(full_props, cell, axs):
     # plt.ylabel("S11 [MPa]")
 
 
-def evol_diff_smaut(bounds, cell, n_iter):
+def evol_diff_smadi(bounds, cell, n_iter):
     all_params = {}
     typesim_to_loads = {
         "tension",
@@ -832,7 +929,7 @@ def evol_diff_smaut(bounds, cell, n_iter):
         # "shear",
     }
 
-    loss = partial(calc_cost_smaut, list_typesim=typesim_to_loads, cell=cell)
+    loss = partial(calc_cost_smadi, list_typesim=typesim_to_loads, cell=cell)
     result = differential_evolution(
         func=loss,
         bounds=bounds,
@@ -841,10 +938,10 @@ def evol_diff_smaut(bounds, cell, n_iter):
         disp=True,
     )
 
-    all_params["smaut"] = result.x
+    all_params["smadi"] = result.x
     df = pd.DataFrame(all_params)
     df.to_csv(
-        f"results_params/params_smaut_{cell}.txt",
+        f"results_params/params_smadi_{cell}.txt",
         index=False,
         sep=" ",
         float_format="%.8e",
@@ -853,11 +950,11 @@ def evol_diff_smaut(bounds, cell, n_iter):
 
 def evol_diff_smani(bounds, cell, xi_modif, n_iter):
     all_params_ani = {}
-    props_smaut = vect_props_smaut_test(
-        load_variable_props(f"results_params/params_smaut_{cell}.txt")
+    props_smadi = vect_props_smadi_test(
+        load_variable_props(f"results_params/params_smadi_{cell}.txt")
     )
 
-    xi_modif = right_artificial_xi(props_smaut, cell)
+    xi_modif = right_artificial_xi(props_smadi, cell)
     typesim_to_loads = {
         "tension": 0,
         "compression": np.pi,
@@ -903,12 +1000,12 @@ def run_homogeneisation(cell):
         (0.1, 5),  # b  # n
     ]
 
-    evol_diff_smaut(bounds, cell=cell, n_iter=40)
+    evol_diff_smadi(bounds, cell=cell, n_iter=40)
     ######################################################Iso_surface################################################""
-    props_smaut = vect_props_smaut_test(
-        load_variable_props(f"results_params/params_smaut_{cell}.txt")
+    props_smadi = vect_props_smadi_test(
+        load_variable_props(f"results_params/params_smadi_{cell}.txt")
     )
-    xi_modif = right_artificial_xi(props_smaut, cell)
+    xi_modif = right_artificial_xi(props_smadi, cell)
 
     bounds = [
         (-2.0, 3.0),  # b

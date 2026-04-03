@@ -8,14 +8,13 @@ from IPython.display import HTML
 from pathlib import Path
 
 
-
 basedir = str(Path(__file__).parent)
 
 
-def umat_smaut(props, typesim):
+def umat_smaac(props, typesim):
     dir = os.path.dirname(os.path.realpath("__file__"))
     umat_name = (
-        "SMAUT"  # This is the 5 character code for the elastic-plastic subroutine
+        "SMAAC"  # This is the 5 character code for the elastic-plastic subroutine
     )
     nstatev = 50  # The number of scalar variables required, only the initial temperature is stored here
 
@@ -27,7 +26,7 @@ def umat_smaut(props, typesim):
     corate_type = 3
 
     path_data = basedir + "/data"
-    path_results = basedir + "/results_smaut/"
+    path_results = basedir + "/results_smaac/"
 
     # Run the simulation
     pathfile = f"path_{typesim}.txt"
@@ -46,4 +45,3 @@ def umat_smaut(props, typesim):
         pathfile,
         outputfile,
     )
-

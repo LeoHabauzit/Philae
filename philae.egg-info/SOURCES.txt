@@ -3,7 +3,7 @@ README.md
 setup.py
 Umat/__init__.py
 Umat/loi_SMANI_props.py
-Umat/loi_SMAUT_props.py
+Umat/loi_smadi_props.py
 philae.egg-info/PKG-INFO
 philae.egg-info/SOURCES.txt
 philae.egg-info/dependency_links.txt
