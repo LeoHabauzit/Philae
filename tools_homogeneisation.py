@@ -632,7 +632,7 @@ def plot_xi_stress(full_props, cell, axs):
         "shear",
     }
     index = 50
-
+    fig1, ax1 = plt.subplots()
     for i, typesim in enumerate(sorted(typesim_to_loads)):
         losses = []
         row = i // 3
@@ -653,7 +653,6 @@ def plot_xi_stress(full_props, cell, axs):
         xi_exp = np.loadtxt(
             f"{data_simu_dir}/SXY/data_{results_dir}/Xi_{results_dir}.txt"
         )
-        print(len(xi), len(xi_exp))
         if typesim == "shear":
             stress_num = s12
             strain_num = e12
@@ -687,17 +686,20 @@ def plot_xi_stress(full_props, cell, axs):
         strain_common = np.linspace(strain_min, strain_max, 200)
 
         # --- interpolations ---
-        interp_num = prepare_interp(stress_num, xi_num)
-        interp_exp = prepare_interp(stress_exp, xi_exp)
+        interp_num = prepare_interp(strain_num, xi_num)
+        interp_exp = prepare_interp(strain_exp, xi_exp)
 
-        xi_num_interp = interp_num(stress_common)
-        xi_exp_interp = interp_exp(stress_common)
+        xi_num_interp = interp_num(strain_common)
+        xi_exp_interp = interp_exp(strain_common)
 
         # --- plots ---
-        ax.plot(stress_common, xi_num_interp, c="green", label="UMAT SMA")
-        ax.plot(stress_common, xi_exp_interp, label=typesim)
-        ratio = xi_exp_interp / (xi_num_interp + 1e-3)
-        ax.plot(stress_common, ratio, label="ratio")
+        # ax.plot(strain_common, xi_num_interp, c="green", label="UMAT SMA")
+        # ax.plot(strain_common, xi_exp_interp, label=typesim)
+        ax.plot(xi_num, stress_num, c="red", label="UMAT SMA")
+        ax.plot(xi_exp, stress_exp, label=typesim)
+        ratio = xi_exp_interp / (xi_num_interp)
+        # ax.plot(strain_common, ratio, label="ratio")
+        ax1.plot(np.abs(strain_common), ratio, label=f"{typesim}")
         ax.set_xlabel("S11 [MPa]")
         ax.set_ylabel("f [-]")
         ax.grid()
