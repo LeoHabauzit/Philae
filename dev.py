@@ -40,10 +40,10 @@ Hmin = 0.00
 k1 = 0.008
 C_A = C
 C_M = C
-Ms0 = 250 + dT
-Mf0 = 230 + dT
-As0 = 240 + dT
-Af0 = 260 + dT
+Ms0 = 273
+Mf0 = 253
+As0 = 283
+Af0 = 303
 n1 = 0.05
 n2 = 0.05
 n3 = 0.05
@@ -97,6 +97,10 @@ props_di = np.array(
         alpha_lambda,
     ]
 )
+
+Mf0_test = Mf0
+Ms0_test, As0_test, Af0_test = get_martensite_temp(Mf=253, Dsf=20, T0=278)
+print("Ms=", Ms0_test, "As=", As0_test, "Af=", Af0_test)
 props_ac = np.array(
     [
         flagT,
@@ -114,10 +118,10 @@ props_ac = np.array(
         sigmacrit,
         C_A,
         C_M,
-        Ms0,
-        Mf0,
-        As0,
-        Af0,
+        Ms0_test,
+        Mf0_test,
+        As0_test,
+        Af0_test,
         n1,
         n2,
         n3,

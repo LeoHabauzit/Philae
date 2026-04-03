@@ -10,7 +10,7 @@ import pandas as pd
 # parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # sys.path.append(parent_dir)
-from Umat.loi_smadi_props import umat_smadi
+from Umat.loi_sma import umat_sma
 
 
 def setup_ax(ax, xlabel, ylabel):
@@ -50,6 +50,15 @@ def load_variable_props(filepath):
     return np.array(values)
 
 
+def get_martensite_temp(Mf, Dsf, T0):
+    # T0=As+Mf / 2
+    # Dtsf=Ms-Mf=A-As
+    Ms = Dsf + Mf
+    As = 2 * T0 - Ms
+    Af = As + Dsf
+    return Ms, As, Af
+
+
 def calc_cost_smadi(props_var, list_typesim, cell):
     """Calcule la fonction de coût pour un jeu de paramètres donné et un type de simulation,
     en comparant les résultats numériques et expérimentaux (erreur quadratique moyenne)
@@ -66,7 +75,7 @@ def calc_cost_smadi(props_var, list_typesim, cell):
     for typesim in list_typesim:
         results_dir = typesim
         props = vect_props_smadi(props_var)
-        umat_smadi(props, typesim)
+        umat_sma(props, typesim, "SMADI")
         outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23 = np.loadtxt(
@@ -668,7 +677,7 @@ def plot_stress_strain_loads(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_smadi(full_props, typesim)
+        umat_sma(full_props, typesim, "SMADI")
 
         outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
@@ -737,7 +746,7 @@ def plot_xi_stress(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_smadi(full_props, typesim)
+        umat_sma(full_props, typesim, "SMADI")
 
         outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
@@ -826,7 +835,7 @@ def plot_stress_mises_strain_loads(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_smadi(full_props, typesim)
+        umat_sma(full_props, typesim, "SMADI")
 
         outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
 
