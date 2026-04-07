@@ -51,8 +51,14 @@ def load_variable_props(filepath):
 
 
 def get_martensite_temp(Mf, Dsf, T0):
-    # T0=As+Mf / 2
-    # Dtsf=Ms-Mf=A-As
+    # T0=Af+Ms / 2
+    # Dtsf=Ms-Mf=Af-As
+
+    # Ms = Dsf + Mf
+    # Af = 2 * T0 - Ms
+    # As = Af - Dsf
+
+    # T0=As+Ms / 2
     Ms = Dsf + Mf
     As = 2 * T0 - Ms
     Af = As + Dsf

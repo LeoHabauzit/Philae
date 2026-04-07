@@ -3,6 +3,7 @@ import fedoo as fd
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
+from simcoon import simmit as sim
 
 
 def dev_fea(v):
@@ -376,3 +377,19 @@ def plot_results_fea(cellule, typesim_to_loads):
     plt.grid(True)
     plt.xlabel("E11[%]")
     plt.ylabel("S11 [MPa]")
+
+
+def run_linear_homogenization(
+    mesh_filename: str, young_modulus: float = 67538, poisson_ratio: float = 0.42
+):
+    print("Run linear homogeneisation")
+    fd.ModelingSpace("3D")
+    mesh = fd.Mesh.read(mesh_filename)
+    material = fd.constitutivelaw.ElasticIsotrop(young_modulus, poisson_ratio)
+    weakform = fd.weakform.StressEquilibrium(material, nlgeom=False)
+    assembly = fd.Assembly.create(weakform, mesh, mesh.elm_type, name="Assembly")
+
+    effective_stiffness_tensor = fd.homogen.get_homogenized_stiffness(assembly)
+
+    props_cubic = sim.L_cubic_props(effective_stiffness_tensor)
+    return props_cubic

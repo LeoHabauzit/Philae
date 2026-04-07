@@ -3,10 +3,10 @@ import numpy as np
 from tools_homogeneisation import *
 from Umat.loi_sma import umat_sma
 
-from simuEF.tools_fea import process_data_fea, mises_strain_fea
+from simuEF.tools_fea import run_linear_homogenization
 import matplotlib.pyplot as plt
 
-cell = "Cuboctahedron40"
+cell = "RhombicDodecahedron40"
 typesim_to_loads = {
     "tension",
     "biaxial_tension",
@@ -25,12 +25,19 @@ sigmacaliber = props_var[5]
 b_prager = props_var[6]
 n_prager = props_var[7]
 
-nu = 0.42
+props_cubic = run_linear_homogenization(f"simuEF/cellules/{cell}.vtk")
+E = props_cubic[0, 0]
+nu = props_cubic[1, 0]
+G = props_cubic[2, 0]
+# nu = 0.42
+# G = E / (2 * (1 + nu))
+print(E, nu, G)
 alpha = 1.0e-4
 E_A = E
 E_M = E
-G_A = 25000
-G_M = 25000
+
+G_A = G
+G_M = G
 nu_A = nu
 nu_M = nu
 alphaA = alpha
@@ -99,7 +106,9 @@ props_di = np.array(
 )
 
 Mf0_test = Mf0
-Ms0_test, As0_test, Af0_test = get_martensite_temp(Mf=253, Dsf=20, T0=278)
+Mf = 253
+Dsf = 20
+Ms0_test, As0_test, Af0_test = get_martensite_temp(Mf=Mf, Dsf=Dsf, T0=Mf + Dsf)
 print("Ms=", Ms0_test, "As=", As0_test, "Af=", Af0_test)
 props_ac = np.array(
     [
