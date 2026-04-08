@@ -410,7 +410,6 @@ def run_linear_homogenization(
 
         props_cubic = sim.L_cubic_props(effective_stiffness_tensor)
         props_cubic = props_cubic.flatten()
-        print(props_cubic)
 
         with open(linear_path, "w") as f:
             f.write("cubic params\n")

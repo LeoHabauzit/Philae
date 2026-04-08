@@ -6,7 +6,7 @@ from Umat.loi_sma import umat_sma
 from simuEF.tools_fea import run_linear_homogenization
 import matplotlib.pyplot as plt
 
-cell = "Cuboctahedron40"
+cell = "RhombicCuboctahedron40"
 typesim_to_loads = {
     "tension",
     "biaxial_tension",
@@ -181,7 +181,7 @@ for i, typesim in enumerate(sorted(typesim_to_loads)):
 
 props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
 finalprops = vect_props_smaac(props_var, props_cubic)
-fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
-plot_xi_stress(finalprops, cell=cell, axs=axes_strain)
+# fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
+# plot_xi_stress(finalprops, cell=cell, axs=axes_strain)
 plt.show()
 plt.close("all")

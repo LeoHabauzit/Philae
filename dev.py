@@ -1,6 +1,6 @@
 from tools_homogeneisation import *
 
-cell = "RhombicDodecahedron40"
+cell = "RhombicCuboctahedron40"
 typesim_to_loads = {
     "tension",
     "biaxial_tension",
