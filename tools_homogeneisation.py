@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import differential_evolution, Bounds
 from functools import partial
 import pandas as pd
+from simuEF.tools_fea import run_linear_homogenization
 # parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # sys.path.append(parent_dir)
@@ -65,7 +66,7 @@ def get_martensite_temp(Mf, Dsf, T0):
     return Ms, As, Af
 
 
-def calc_cost_smadi(props_var, list_typesim, cell):
+def calc_cost_strain(props_var, list_typesim, cell, props_cubic):
     """Calcule la fonction de coût pour un jeu de paramètres donné et un type de simulation,
     en comparant les résultats numériques et expérimentaux (erreur quadratique moyenne)
 
@@ -77,27 +78,36 @@ def calc_cost_smadi(props_var, list_typesim, cell):
         float : erreur liée a la simulation calculée avec la méthode des moindrs carrées
     """
     losses = []
-    data_simu_dir = f"datas_simu/{cell}"
+    data_simu_dir = f"simuEF/datas_simu/{cell}"
     for typesim in list_typesim:
         results_dir = typesim
-        props = vect_props_smadi(props_var)
-        umat_sma(props, typesim, "SMADI")
-        outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
+        props = vect_props_smaac(props_var, props_cubic)
+        umat_sma(props, typesim, "SMAAC")
+        outputfile_global = f"Umat/results_SMAAC/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23 = np.loadtxt(
             outputfile_global,
             usecols=(8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
             unpack=True,
         )
-
-        strain_num = e11
-        stress_num = s11
-        stress_exp = np.loadtxt(
-            f"{data_simu_dir}/SXX/data_{results_dir}/Stress_{results_dir}.txt"
-        )
-        strain_exp = np.loadtxt(
-            f"{data_simu_dir}/SXX/data_{results_dir}/MeanStrain_{results_dir}.txt"
-        )
+        if typesim == "shear":
+            strain_num = e12
+            stress_num = s12
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/MeanStrain_{results_dir}.txt"
+            )
+        else:
+            strain_num = e11
+            stress_num = s11
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/MeanStrain_{results_dir}.txt"
+            )
 
         interp = interp1d(
             strain_exp, stress_exp, kind="linear", fill_value="extrapolate"
@@ -109,7 +119,105 @@ def calc_cost_smadi(props_var, list_typesim, cell):
     return loss
 
 
-def vect_props_smadi(props_var):
+def vect_props_smaac(props_var, props_cubic):
+    Hmax = props_var[0]
+    sigmacrit = props_var[1]
+    b_prager = props_var[2]
+    n_prager = props_var[3]
+    Mf0_test = props_var[4]
+    Dsf = props_var[5]
+    F = props_var[6]
+    L = props_var[7]
+    K = props_var[8]
+
+    Ms0_test, As0_test, Af0_test = get_martensite_temp(
+        Mf=Mf0_test, Dsf=Dsf, T0=Mf0_test + Dsf + 5
+    )
+    # print(Mf0_test + Dsf + 5)
+    # print("Mf=", Mf0_test, "Ms=", Ms0_test, "As=", As0_test, "Af=", Af0_test)
+
+    E = props_cubic[0]
+    nu = props_cubic[1]
+    G = props_cubic[2]
+
+    alpha = 1.0e-4
+    E_A = E
+    E_M = E
+    nu_A = nu
+    nu_M = nu
+    G_A = G
+    G_M = G
+    alphaA = alpha
+    alphaM = alpha
+    flagT = 0.0
+    Hmin = 0.00
+    k1 = 0.008
+    C_A = 5.36
+    C_M = 5.36
+    sigmacaliber = 300.0
+    n1 = 0.05
+    n2 = 0.05
+    n3 = 0.05
+    n4 = 0.05
+    c_lambda = 1.0e-6
+    p0_lambda = 1.0e-3
+    n_lambda = 1.0
+    alpha_lambda = 1.0e8
+    F_dfa = F
+    G_dfa = F_dfa
+    H_dfa = F_dfa
+    L_dfa = L
+    M_dfa = L_dfa
+    N_dfa = L_dfa
+    K_dfa = K
+    full_props = np.array(
+        [
+            flagT,
+            E_A,
+            E_M,
+            nu_A,
+            nu_M,
+            G_A,
+            G_M,
+            alphaA,
+            alphaM,
+            Hmin,
+            Hmax,
+            k1,
+            sigmacrit,
+            C_A,
+            C_M,
+            Ms0_test,
+            Mf0_test,
+            As0_test,
+            Af0_test,
+            n1,
+            n2,
+            n3,
+            n4,
+            sigmacaliber,
+            b_prager,
+            n_prager,
+            c_lambda,
+            p0_lambda,
+            n_lambda,
+            alpha_lambda,
+            F_dfa,
+            G_dfa,
+            H_dfa,
+            L_dfa,
+            M_dfa,
+            N_dfa,
+            K_dfa,
+        ]
+    )
+
+    return full_props
+
+
+def vect_props_smadi(
+    props_var,
+):
     """Transforme un vecteur de paramètres variables (E, Hmax, sigmacrit, C, dT, sigmacaliber)
     en un vecteur complet des propriétés attendu par la simulation UMAT.
 
@@ -255,103 +363,6 @@ def vect_props_smadi_test(props_var):
             flagT,
             E_A,
             E_M,
-            nu_A,
-            nu_M,
-            alphaA,
-            alphaM,
-            Hmin,
-            Hmax,
-            k1,
-            sigmacrit,
-            C_A,
-            C_M,
-            Ms0,
-            Mf0,
-            As0,
-            Af0,
-            n1,
-            n2,
-            n3,
-            n4,
-            sigmacaliber,
-            b_prager,
-            n_prager,
-            c_lambda,
-            p0_lambda,
-            n_lambda,
-            alpha_lambda,
-            F_dfa,
-            G_dfa,
-            H_dfa,
-            L_dfa,
-            M_dfa,
-            N_dfa,
-            K_dfa,
-        ]
-    )
-    return full_props
-
-
-def vect_props_smaac(props_var):
-    # E = props_var[0]
-    # Hmax = props_var[2]
-    # sigmacrit = props_var[3]
-    # b_prager = props_var[6]
-    # n_prager = props_var[7]
-    E = 67538
-    G = 25033
-    Hmax = 0.0418
-    sigmacrit = 0
-    b_prager = 0.5
-    n_prager = 2.0
-
-    E_A = E
-    E_M = E
-    nu_A = 0.349
-    nu_M = 0.349
-    G_A = G
-    G_M = G
-    alphaA = 1.0e-6
-    alphaM = 1.0e-6
-    flagT = 0.0
-    Hmin = 0.00
-    k1 = 0.008
-    C_A = 10
-    C_M = 10
-    sigmacaliber = 300
-    Ms0 = 250
-    Mf0 = 230
-    As0 = 240
-    Af0 = 260
-    n1 = 0.05
-    n2 = 0.05
-    n3 = 0.05
-    n4 = 0.05
-    b_prager = b_prager
-    n_prager = n_prager
-    c_lambda = 1.0e-6
-    p0_lambda = 1.0e-3
-    n_lambda = 1.0
-    alpha_lambda = 1.0e8
-
-    F = 0.5
-    L = 1.5
-    K = 0
-    F_dfa = F
-    G_dfa = F_dfa
-    H_dfa = F_dfa
-    L_dfa = L
-    M_dfa = L_dfa
-    N_dfa = L_dfa
-    K_dfa = K
-
-    full_props = np.array(
-        [
-            flagT,
-            E_A,
-            E_M,
-            G_A,
-            G_M,
             nu_A,
             nu_M,
             alphaA,
@@ -752,9 +763,9 @@ def plot_xi_stress(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_sma(full_props, typesim, "SMADI")
+        umat_sma(full_props, typesim, "SMAAC")
 
-        outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
+        outputfile_global = f"Umat/results_SMAAC/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23, xi = np.loadtxt(
             outputfile_global,
@@ -931,6 +942,41 @@ def plot_stress_mises_strain_loads(full_props, cell, axs):
     plt.grid(True)
     # plt.xlabel("E11[%]")
     # plt.ylabel("S11 [MPa]")
+
+
+def evol_diff_strain(bounds, cell, n_iter):
+    all_params = {}
+    typesim_to_loads = {
+        "tension",
+        "biaxial_tension",
+        "compression",
+        "biaxial_compression",
+        "tencomp",
+        "shear",
+    }
+    props_cubic = run_linear_homogenization(f"simuEF/cellules/{cell}")
+    loss = partial(
+        calc_cost_strain,
+        list_typesim=typesim_to_loads,
+        cell=cell,
+        props_cubic=props_cubic,
+    )
+    result = differential_evolution(
+        func=loss,
+        bounds=bounds,
+        maxiter=n_iter,
+        tol=1e-4,
+        disp=True,
+    )
+
+    all_params["smaac"] = result.x
+    df = pd.DataFrame(all_params)
+    df.to_csv(
+        f"results_params/params_strain_{cell}.txt",
+        index=False,
+        sep=" ",
+        float_format="%.8e",
+    )
 
 
 def evol_diff_smadi(bounds, cell, n_iter):

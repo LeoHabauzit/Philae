@@ -380,16 +380,41 @@ def plot_results_fea(cellule, typesim_to_loads):
 
 
 def run_linear_homogenization(
-    mesh_filename: str, young_modulus: float = 67538, poisson_ratio: float = 0.42
+    cell: str, young_modulus: float = 67538, poisson_ratio: float = 0.42
 ):
-    print("Run linear homogeneisation")
-    fd.ModelingSpace("3D")
-    mesh = fd.Mesh.read(mesh_filename)
-    material = fd.constitutivelaw.ElasticIsotrop(young_modulus, poisson_ratio)
-    weakform = fd.weakform.StressEquilibrium(material, nlgeom=False)
-    assembly = fd.Assembly.create(weakform, mesh, mesh.elm_type, name="Assembly")
+    linear_path = f"results_params/parametres_lineaires/E_nu_G_{cell}.txt"
+    if os.path.exists(linear_path):
+        values = []
 
-    effective_stiffness_tensor = fd.homogen.get_homogenized_stiffness(assembly)
+        with open(linear_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    values.append(float(line))
+                except ValueError:
+                    # Ignore les lignes texte comme "traction-compression"
+                    continue
 
-    props_cubic = sim.L_cubic_props(effective_stiffness_tensor)
+        return np.array(values)
+    else:
+        print("Run linear homogeneisation")
+        fd.ModelingSpace("3D")
+        mesh = fd.Mesh.read(f"simuEF/cellules/{cell}.vtk")
+        material = fd.constitutivelaw.ElasticIsotrop(young_modulus, poisson_ratio)
+        weakform = fd.weakform.StressEquilibrium(material, nlgeom=False)
+        assembly = fd.Assembly.create(weakform, mesh, mesh.elm_type, name="Assembly")
+
+        effective_stiffness_tensor = fd.homogen.get_homogenized_stiffness(assembly)
+
+        props_cubic = sim.L_cubic_props(effective_stiffness_tensor)
+        props_cubic = props_cubic.flatten()
+        print(props_cubic)
+
+        with open(linear_path, "w") as f:
+            f.write("cubic params\n")
+            for val in props_cubic:
+                f.write(f"{val:.8e}\n")
+
     return props_cubic
