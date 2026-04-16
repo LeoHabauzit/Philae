@@ -123,7 +123,7 @@ def cell_fea(props, material_law, typesim, load_typesim, cell):
     bounds = mesh.bounding_box
 
     center = mesh.nearest_node(mesh.bounding_box.center)
-
+    print(material_law)
     material = fd.constitutivelaw.Simcoon(material_law, props)
     weakform = fd.weakform.StressEquilibrium(material, nlgeom=False)
     assembly = fd.Assembly.create(weakform, mesh)

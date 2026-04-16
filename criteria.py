@@ -1,5 +1,6 @@
 import numpy as np
 from continum_mech import *
+from simcoon import simmit as sim
 
 
 def mises_stress(v):
@@ -66,48 +67,56 @@ def drucker_ani_stress(v, b, n, params):
 def get_Phi_forward_SMA(props, v, xi, T, ani=0):
     """
 
-    Si ani = 0 -> critère de drucker
-    Si ani = 1 -> drucker anisotrope (dfa)
+    Si ani = 0 -> SMADI Isotrope non cubique
+    Si ani = 1 -> SMAAC Anisotrope cubique
     """
+    if ani == 1:
+        offset = 2
+        G_A = props[5]
+        G_M = props[6]
+    else:
+        offset = 0
+
     flagT = 0
     E_A = props[1]
     E_M = props[2]
     nu_A = props[3]
     nu_M = props[4]
-    alphaA_iso = props[5]
-    alphaM_iso = props[6]
-    Hmin = props[7]
-    Hmax = props[8]
-    k1 = props[9]
-    sigmacrit = props[10]
 
-    C_A = props[11]
-    C_M = props[12]
-    Ms0 = props[13]
-    Mf0 = props[14]
-    As0 = props[15]
-    Af0 = props[16]
+    alphaA_iso = props[5 + offset]
+    alphaM_iso = props[6 + offset]
+    Hmin = props[7 + offset]
+    Hmax = props[8 + offset]
+    k1 = props[9 + offset]
+    sigmacrit = props[10 + offset]
 
-    n1 = props[17]
-    n2 = props[18]
-    n3 = props[19]
-    n4 = props[20]
-    sigmacaliber = props[21]
-    prager_b = props[22]
-    prager_n = props[23]
+    C_A = props[11 + offset]
+    C_M = props[12 + offset]
+    Ms0 = props[13 + offset]
+    Mf0 = props[14 + offset]
+    As0 = props[15 + offset]
+    Af0 = props[16 + offset]
 
-    c_lambda = props[24]
-    p0_lambda = props[25]
-    n_lambda = props[26]
-    alpha_lambda = props[27]
+    n1 = props[17 + offset]
+    n2 = props[18 + offset]
+    n3 = props[19 + offset]
+    n4 = props[20 + offset]
+    sigmacaliber = props[21 + offset]
+    prager_b = props[22 + offset]
+    prager_n = props[23 + offset]
 
-    F_dfa = props[28]
-    G_dfa = props[29]
-    H_dfa = props[30]
-    L_dfa = props[31]
-    M_dfa = props[32]
-    N_dfa = props[33]
-    K_dfa = props[34]
+    c_lambda = props[24 + offset]
+    p0_lambda = props[25 + offset]
+    n_lambda = props[26 + offset]
+    alpha_lambda = props[27 + offset]
+
+    F_dfa = props[28 + offset]
+    G_dfa = props[29 + offset]
+    H_dfa = props[30 + offset]
+    L_dfa = props[31 + offset]
+    M_dfa = props[32 + offset]
+    N_dfa = props[33 + offset]
+    K_dfa = props[34 + offset]
     DFA_params = np.array([F_dfa, G_dfa, H_dfa, L_dfa, M_dfa, N_dfa, K_dfa])
 
     Dalpha = (alphaM_iso - alphaA_iso) * np.array((1, 1, 1, 0, 0, 0))
@@ -117,8 +126,17 @@ def get_Phi_forward_SMA(props, v, xi, T, ani=0):
 
     K_M = E_M / (3.0 * (1.0 - 2 * nu_M))
     mu_M = E_M / (2.0 * (1.0 + nu_M))
-    M_A = M_iso_Kmu(K_A, mu_A)
-    M_M = M_iso_Kmu(K_M, mu_M)
+
+    if ani == 0:
+        M_A = np.linalg.inv(sim.L_iso([props[1], props[3]], "Enu"))
+        M_M = np.linalg.inv(sim.L_iso([props[2], props[4]], "Enu"))
+
+    else:
+        M_A = np.linalg.inv(sim.L_cubic([props[1], props[3], props[5]], "EnuG"))
+        M_M = np.linalg.inv(sim.L_cubic([props[2], props[4], props[6]], "EnuG"))
+
+    # M_A = M_iso_Kmu(K_A, mu_A)
+    # M_M = M_iso_Kmu(K_M, mu_M)
     DM = M_M - M_A
 
     DM_sig = DM @ v

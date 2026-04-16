@@ -735,29 +735,15 @@ def evol_diff_smani(bounds, cell, xi_modif, n_iter):
 
 def run_homogeneisation(cell):
     bounds = [
-        (5000, 12000),  # E
-        (1.0, 11.0),  # C_A C_M
         (0.02, 0.12),  # Hmax
         (0, 100),  # sigma crit
-        (0, 80),  # dT
-        (0, 400),  # sigma caliber
-        (-2.0, 2.0),
-        (0.1, 5),  # b  # n
-    ]
-
-    evol_diff_smadi(bounds, cell=cell, n_iter=40)
-    ######################################################Iso_surface################################################""
-    props_smadi = vect_props_smadi_test(
-        load_variable_props(f"results_params/params_smadi_{cell}.txt")
-    )
-    xi_modif = right_artificial_xi(props_smadi, cell)
-
-    bounds = [
-        (-2.0, 3.0),  # b
-        (0.1, 3.0),  # n
+        (-2.0, 2.0),  # b
+        (0.1, 5),  # n
+        (250, 280),  # Mf0
+        (20, 50),  # dsf
         (0, 10),  # F
         (0, 10),  # L
-        (0, 15),  # K
+        (0, 10),  # K
     ]
 
-    evol_diff_smani(bounds, cell, xi_modif=xi_modif, n_iter=100)
+    evol_diff_strain(bounds, cell, n_iter=40)

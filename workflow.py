@@ -15,7 +15,7 @@ np.float_ = np.float64
 # cell = "RhombicDodecahedron40"
 # meshfile = f"cellules/{cell}.vtk"
 
-material_law = "smadi"
+material_law = "SMAUT"
 
 props = read_props("simuEF/params_sma_init.txt")
 

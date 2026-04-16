@@ -6,7 +6,7 @@ from Umat.loi_sma import umat_sma
 from simuEF.tools_fea import run_linear_homogenization
 import matplotlib.pyplot as plt
 
-cell = "RhombicCuboctahedron40"
+cell = "Cuboctahedron40"
 typesim_to_loads = {
     "tension",
     "biaxial_tension",
@@ -16,12 +16,8 @@ typesim_to_loads = {
     "shear",
 }
 props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
-# E = props_var[0]
-# C = props_var[1]
 Hmax = props_var[0]
 sigmacrit = props_var[1]
-# dT = props_var[4]
-# sigmacaliber = props_var[5]
 b_prager = props_var[2]
 n_prager = props_var[3]
 Mf0_test = props_var[4]
@@ -107,7 +103,52 @@ props_di = np.array(
         alpha_lambda,
     ]
 )
+props_cubic = run_linear_homogenization(f"{cell}")
+E = props_cubic[0]
+nu = props_cubic[1]
+G = props_cubic[2]
 
+props_ac = np.array(
+    [
+        flagT,
+        E,
+        E,
+        nu,
+        nu,
+        G,
+        G,
+        alphaA,
+        alphaM,
+        Hmin,
+        Hmax,
+        k1,
+        sigmacrit,
+        C_A,
+        C_M,
+        Ms0,
+        Mf0,
+        As0,
+        Af0,
+        n1,
+        n2,
+        n3,
+        n4,
+        sigmacaliber,
+        b_prager,
+        n_prager,
+        c_lambda,
+        p0_lambda,
+        n_lambda,
+        alpha_lambda,
+        F,
+        F,
+        F,
+        L,
+        L,
+        L,
+        K,
+    ]
+)
 # Mf0_test = Mf0
 # Mf = 253
 # Dsf = 20
@@ -123,7 +164,7 @@ for i, typesim in enumerate(sorted(typesim_to_loads)):
     row = i // 3
     col = i % 3
     ax = axes_strain[row, col]
-    umat_sma(props_test, typesim, "SMAAC")
+    umat_sma(props_ac, typesim, "SMAAC")
 
     outputfile_global = f"Umat/results_SMAAC/results_{typesim}_global-0.txt"
 
