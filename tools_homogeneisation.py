@@ -408,9 +408,9 @@ def plot_stress_strain_loads(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_sma(full_props, typesim, "SMADI")
+        umat_sma(full_props, typesim, "SMAAC")
 
-        outputfile_global = f"Umat/results_smadi/results_{typesim}_global-0.txt"
+        outputfile_global = f"Umat/results_SMAAC/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23, xi = np.loadtxt(
             outputfile_global,

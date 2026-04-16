@@ -164,7 +164,7 @@ for i, typesim in enumerate(sorted(typesim_to_loads)):
     row = i // 3
     col = i % 3
     ax = axes_strain[row, col]
-    umat_sma(props_ac, typesim, "SMAAC")
+    umat_sma(props_test, typesim, "SMAAC")
 
     outputfile_global = f"Umat/results_SMAAC/results_{typesim}_global-0.txt"
 
