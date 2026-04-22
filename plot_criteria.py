@@ -17,7 +17,7 @@ def radius_for_von_mises(theta, sigma_y, plane):
     return sol.root
 
 
-def radius_for_drucker(props, xi, T, theta, plane):
+def radius_for_drucker(props, xi, T, theta, plane="s11-s22"):
     """Rayon r tel que σ_drucker = sigma_y pour un angle theta"""
     # print(theta)
 
@@ -48,7 +48,7 @@ def radius_for_drucker(props, xi, T, theta, plane):
         return sol.root
 
 
-def radius_for_drucker_ani(props, xi, T, theta, plane):
+def radius_for_drucker_ani(props, xi, T, theta, plane="s11-s22"):
     """Rayon r tel que σ_drucker = sigma_y pour un angle theta"""
     # print(theta)
 

@@ -138,6 +138,8 @@ def get_Phi_forward_SMA(props, v, xi, T, ani=0):
     # M_A = M_iso_Kmu(K_A, mu_A)
     # M_M = M_iso_Kmu(K_M, mu_M)
     DM = M_M - M_A
+    M_eff = xi * M_M + (1 - xi) * M_A
+    L = np.linalg.inv(M_eff)
 
     DM_sig = DM @ v
 
@@ -189,7 +191,7 @@ def get_Phi_forward_SMA(props, v, xi, T, ani=0):
     rhoDE0 = 0.5 * rhoDs0 * (MsSmooth + AfSmooth)
     D = (
         (C_M - C_A)
-        * (Hcurstar + sigmacaliber * (dHcurstar + (1 / E_M - 1 / E_A)))
+        * (Hcurstar + sigmacaliber * (dHcurstar + (M_M[0, 0] - M_A[0, 0])))
         / ((C_A + C_M) * (Hcurstar + sigmacaliber * dHcurstar))
     )
     a1 = rhoDs0 * (MfSmooth - MsSmooth)

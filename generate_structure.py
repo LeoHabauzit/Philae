@@ -21,39 +21,48 @@ import pyvista as pv
 
 rve = Rve(dim=1.0)
 lattice_shapes_name = [
-    "BodyCenteredCubic",
-    "Cubic",
-    "Cuboctahedron",
-    "Diamond",
-    "FaceCenteredCubic",
-    "TruncatedCuboctahedron",
-    "Octahedron",
-    "OctetTruss",
-    "TruncatedCube",
-    "RhombicCuboctahedron",
-    "RhombicDodecahedron",
-    "TruncatedOctahedron",
+    BodyCenteredCubic,
+    # Cubic,
+    # Cuboctahedron,
+    # Diamond,
+    # FaceCenteredCubic,
+    TruncatedCuboctahedron,
+    Octahedron,
+    OctetTruss,
+    TruncatedCube,
+    # RhombicCuboctahedron,
+    # RhombicDodecahedron,
+    TruncatedOctahedron,
 ]
 
 
-shape = RhombicCuboctahedron
-shape_name = shape.__name__
+# shape = FaceCenteredCubic
+# shape_name = shape.__name__
 
 
-lattice_shape = shape(density=0.4)
-shapeStep = lattice_shape.generate()
-cq.exporters.export(shapeStep, f"{shape_name}.step")
+def generate_structure(shape_):
+    lattice_shape = shape(density=0.4)
+    shapeStep = lattice_shape.generate()
+    cq.exporters.export(shapeStep, f"{shape_}.step")
 
-print("strut_radius=", lattice_shape.strut_radius)
-phases_cut = [Phase(shapeStep)]
-meshPeriodic(
-    mesh_file=f"{shape_name}.step",
-    rve=rve,
-    listPhases=phases_cut,
-    order=1,
-    size=0.05,
-    output_file=f"{shape_name}.vtk",
-)
+    print("strut_radius=", lattice_shape.strut_radius)
+    phases_cut = [Phase(shapeStep)]
+    meshPeriodic(
+        mesh_file=f"{shape_}.step",
+        rve=rve,
+        listPhases=phases_cut,
+        order=1,
+        size=0.05,
+        output_file=f"simuEF/cellules/{shape}40.vtk",
+    )
 
-mesh = pv.read(f"{shape_name}.vtk")
-mesh.plot(show_edges=True)
+    # mesh = pv.read(f"simuEF/cellules/{shape}40.vtk")
+    # mesh.plot(show_edges=True)
+
+    os.remove(f"{shape_}.step")
+
+
+for shape in lattice_shapes_name:
+    shape_name = shape.__name__
+    print(shape_name)
+    generate_structure(shape_name)

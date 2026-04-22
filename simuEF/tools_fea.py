@@ -314,7 +314,11 @@ def process_data_fea(typesim, cell):
         plt.xlabel("Fraction volumique")
         plt.ylabel("Nombre d'éléments")
         plt.title("Distribution des transformations")
-        plt.show()
+
+        if not os.path.exists(f"fig_repartition/{cell}"):
+            os.makedirs(f"fig_repartition/{cell}")
+
+        plt.savefig(f"fig_repartition/{cell}/{cell}_{typesim}.png")
         # np.savetxt(
         #     data_dir / f"Transformation_strain_{results_dir}.txt",
         #     transformation_strain_array,

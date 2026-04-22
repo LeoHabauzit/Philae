@@ -20,14 +20,28 @@ material_law = "SMAUT"
 props = read_props("simuEF/params_sma_init.txt")
 
 typesim_to_loads = define_typesim_to_loads(0.05)
-cell = "Cuboctahedron40"
-for typesim in typesim_to_loads.keys():
-    load = typesim_to_loads.get(typesim)
-    cell_fea(props, material_law, typesim, load, cell)
-    process_data_fea(typesim, cell)
-    erase_fea_file(typesim)
+lattice_shapes_name = [
+    "BodyCenteredCubic",
+    # "Cubic",
+    "Cuboctahedron",
+    # "Diamond",
+    "FaceCenteredCubic",
+    "TruncatedCuboctahedron",
+    "Octahedron",
+    "OctetTruss",
+    "TruncatedCube",
+    "RhombicCuboctahedron",
+    "RhombicDodecahedron",
+    "TruncatedOctahedron",
+]
+for cell_name in lattice_shapes_name:
+    cell = cell_name + "40"
+    for typesim in typesim_to_loads.keys():
+        load = typesim_to_loads.get(typesim)
+        cell_fea(props, material_law, typesim, load, cell)
+        process_data_fea(typesim, cell)
+        erase_fea_file(typesim)
 # run_homogeneisation(cell=cell)
-
 
 # cell = "Cuboctahedron40"
 # density_to_load = [30, 40, 50, 60]

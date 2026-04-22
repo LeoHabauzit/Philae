@@ -216,7 +216,7 @@ def vect_props_smaac(props_var, props_cubic):
 
 
 def find_first_stress_at_xi_limit(typesim, xi_lim, cell):
-    data_simu_dir = f"datas_simu/{cell}"
+    data_simu_dir = f"simuEF/datas_simu/{cell}"
     results_dir = typesim
     # xi_init = get_xi_init_sma(props, typesim)
     xi_init = 0
@@ -310,7 +310,7 @@ def right_artificial_xi(props, cell):
     return sol.root
 
 
-def plot_isosurface_strut_material(full_props, xi_modif, cell, axes, i=0):
+def plot_isosurface_strut_material(full_props, xi_values, cell, axes, i=0):
     ax = axes[0]
     # -------------------------------------------Partie dans le plan (S11,S22)--------------------------------------
     typesim_to_loads = {
@@ -321,10 +321,11 @@ def plot_isosurface_strut_material(full_props, xi_modif, cell, axes, i=0):
         "tencomp",
         # "shear",
     }
-    if i == 1:
-        plot_drucker_radius(ax, full_props, xi=xi_modif, T=300.0, plane="s11-s22")
-    else:
-        plot_drucker_ani_radius(ax, full_props, xi=xi_modif, T=300.0, plane="s11-s22")
+    for xi in xi_values:
+        if i == 1:
+            plot_drucker_radius(ax, full_props, xi, T=300.0, plane="s11-s22")
+        else:
+            plot_drucker_ani_radius(ax, full_props, xi, T=300.0, plane="s11-s22")
     # plot_drucker_ani_radius(ax, props, xi=0.01, T=300.0, plane="s11-s22")
 
     X_points = []
@@ -361,10 +362,11 @@ def plot_isosurface_strut_material(full_props, xi_modif, cell, axes, i=0):
     }
     ax = axes[1]
     # plot_drucker_radius(ax, full_props, xi=xi_modif, T=300.0, plane="s11-s12")
-    if i == 1:
-        plot_drucker_radius(ax, full_props, xi=xi_modif, T=300.0, plane="s11-s12")
-    else:
-        plot_drucker_ani_radius(ax, full_props, xi=xi_modif, T=300.0, plane="s11-s12")
+    for xi in xi_values:
+        if i == 1:
+            plot_drucker_radius(ax, full_props, xi, T=300.0, plane="s11-s12")
+        else:
+            plot_drucker_ani_radius(ax, full_props, xi, T=300.0, plane="s11-s12")
 
     # for typemat in materials_to_load:
     X_points = []
@@ -391,7 +393,7 @@ def plot_isosurface_strut_material(full_props, xi_modif, cell, axes, i=0):
 
 
 def plot_stress_strain_loads(full_props, cell, axs):
-    data_simu_dir = f"datas_simu/{cell}"
+    data_simu_dir = f"simuEF/datas_simu/{cell}"
     typesim_to_loads = {
         "tension",
         "biaxial_tension",
@@ -459,7 +461,7 @@ def plot_stress_strain_loads(full_props, cell, axs):
 
 
 def plot_xi_stress(full_props, cell, axs):
-    data_simu_dir = f"datas_simu/{cell}"
+    data_simu_dir = f"simuEF/datas_simu/{cell}"
     typesim_to_loads = {
         "tension",
         "biaxial_tension",
@@ -469,7 +471,7 @@ def plot_xi_stress(full_props, cell, axs):
         "shear",
     }
     index = 50
-
+    fig, ax_bis = plt.subplots()
     for i, typesim in enumerate(sorted(typesim_to_loads)):
         losses = []
         row = i // 3
@@ -490,7 +492,7 @@ def plot_xi_stress(full_props, cell, axs):
         xi_exp = np.loadtxt(
             f"{data_simu_dir}/SXY/data_{results_dir}/Xi_{results_dir}.txt"
         )
-        print(len(xi), len(xi_exp))
+
         if typesim == "shear":
             stress_num = s12
             strain_num = e12
@@ -524,18 +526,19 @@ def plot_xi_stress(full_props, cell, axs):
         strain_common = np.linspace(strain_min, strain_max, 200)
 
         # --- interpolations ---
-        interp_num = prepare_interp(stress_num, xi_num)
-        interp_exp = prepare_interp(stress_exp, xi_exp)
+        interp_num = prepare_interp(strain_num, xi_num)
+        interp_exp = prepare_interp(strain_exp, xi_exp)
 
-        xi_num_interp = interp_num(stress_common)
-        xi_exp_interp = interp_exp(stress_common)
+        xi_num_interp = interp_num(strain_common)
+        xi_exp_interp = interp_exp(strain_common)
 
         # --- plots ---
-        ax.plot(stress_common, xi_num_interp, c="green", label="UMAT SMA")
-        ax.plot(stress_common, xi_exp_interp, label=typesim)
+        ax.plot(strain_common, xi_num_interp, c="orange", label="UMAT SMA")
+        ax.plot(strain_common, xi_exp_interp, label=typesim)
         ratio = xi_exp_interp / (xi_num_interp + 1e-3)
-        ax.plot(stress_common, ratio, label="ratio")
-        ax.set_xlabel("S11 [MPa]")
+        ax.plot(strain_common, ratio, label="ratio", color="green")
+        ax_bis.plot(np.abs(strain_common), np.abs(ratio), label=f"{typesim}")
+        ax.set_xlabel("E11 [-]")
         ax.set_ylabel("f [-]")
         ax.grid()
         ax.legend()
