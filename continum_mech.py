@@ -93,6 +93,12 @@ def stress_vector_from_polar(r, theta, plane):
         raise ValueError("plane doit être 's11-s22' ou 's11-s12'")
 
 
+def get_polar_coords(x, y):
+    r = np.sqrt(x**2 + y**2)
+    theta = np.arctan2(y, x)
+    return r, theta
+
+
 def prepare_interp(stress, xi):
     # tri
     idx = np.argsort(stress)

@@ -48,12 +48,12 @@ def generate_structure(shape_):
     print("strut_radius=", lattice_shape.strut_radius)
     phases_cut = [Phase(shapeStep)]
     meshPeriodic(
-        mesh_file=f"{shape_}.step",
+        mesh_file="monfichier.step",
         rve=rve,
         listPhases=phases_cut,
         order=1,
         size=0.05,
-        output_file=f"simuEF/cellules/{shape}40.vtk",
+        output_file=f"monfichier.vtk",
     )
 
     # mesh = pv.read(f"simuEF/cellules/{shape}40.vtk")

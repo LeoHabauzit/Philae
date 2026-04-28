@@ -1,9 +1,9 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.optimize import root_scalar
-import matplotlib.lines as mlines
 from continum_mech import *
 from criteria import *
+import matplotlib as mpl
+from matplotlib.colors import LinearSegmentedColormap
 
 
 def radius_for_von_mises(theta, sigma_y, plane):
@@ -78,6 +78,21 @@ def radius_for_drucker_ani(props, xi, T, theta, plane="s11-s22"):
         return sol.root
 
 
+def xi_for_drucker_ani(props, r, T, theta, plane="s11-s22"):
+    """Rayon r tel que σ_drucker = sigma_y pour un angle theta"""
+    # print(theta)
+
+    def f(xi):
+        v = stress_vector_from_polar(r, theta, plane)
+        return get_Phi_forward_SMA(props=props, v=v, xi=xi, T=T, ani=1)
+
+    a = 1e-9
+    b = 1.0
+
+    sol = root_scalar(f, bracket=[a, b], method="brentq")
+    return sol.root
+
+
 def radius_to_find_xi_lim(props, xi, T, theta, plane):
     """Rayon r tel que σ_drucker = sigma_y pour un angle theta"""
     # print(theta)
@@ -135,6 +150,7 @@ def plot_drucker_radius(ax, props, xi, T, plane="s11-s22", npts=400):
 
 
 def plot_drucker_ani_radius(ax, props, xi, T, plane="s11-s22", npts=400):
+    cmap = LinearSegmentedColormap.from_list("blue_orange", ["blue", "orange"])
     theta = np.linspace(0, 2 * np.pi, npts)
     r = np.array(
         [
@@ -145,7 +161,11 @@ def plot_drucker_ani_radius(ax, props, xi, T, plane="s11-s22", npts=400):
 
     x = r * np.cos(theta)
     y = r * np.sin(theta)
-    ax.plot(x, y, label="Drucker Ani", color="orange")
+
+    norm = mpl.colors.Normalize(vmin=0, vmax=1)
+
+    color = cmap(norm(xi))
+    ax.plot(x, y, label=f"Drucker Ani{xi}", color=color)
 
 
 def plot_dfa_contour(ax, sigma_y, params, plane="s11-s22", npts=400):

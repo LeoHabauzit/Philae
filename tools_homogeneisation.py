@@ -310,6 +310,42 @@ def right_artificial_xi(props, cell):
     return sol.root
 
 
+def plot_xi_gradient(props, fig, axes, T=300.0, nx=100, ny=100):
+    x = np.linspace(-150, 150, nx)
+    y = np.linspace(-150, 150, ny)
+    X, Y = np.meshgrid(x, y)
+    Xi_crit_11 = np.zeros_like(X)
+    Xi_crit_12 = np.zeros_like(X)
+    for i in range(nx):
+        for j in range(ny):
+            print(i, j)
+            r, theta = get_polar_coords(X[j, i], Y[j, i])
+
+            Xi_crit_11[j, i] = xi_for_drucker_ani(props, r, T, theta, plane="s11-s22")
+            Xi_crit_12[j, i] = xi_for_drucker_ani(props, r, T, theta, plane="s11-s12")
+
+    cmap = LinearSegmentedColormap.from_list("green_red", ["green", "red"])
+    im0 = axes[0].imshow(
+        Xi_crit_11,
+        extent=[-150, 150, -150, 150],
+        origin="lower",
+        cmap=cmap,
+        vmin=0,
+        vmax=1,
+    )
+
+    im1 = axes[1].imshow(
+        Xi_crit_12,
+        extent=[-150, 150, -100, 100],
+        origin="lower",
+        cmap=cmap,
+        vmin=0,
+        vmax=1,
+    )
+
+    fig.colorbar(im1, ax=axes, label="xi_crit")
+
+
 def plot_isosurface_strut_material(full_props, xi_values, cell, axes, i=0):
     ax = axes[0]
     # -------------------------------------------Partie dans le plan (S11,S22)--------------------------------------
@@ -348,7 +384,7 @@ def plot_isosurface_strut_material(full_props, xi_values, cell, axes, i=0):
     ax.scatter(X_points, Y_points, label=f"{cell}")
 
     setup_ax(ax, r"$\sigma_{11} [MPa]$", r"$\sigma_{22} [MPa]$")
-    ax.legend(fontsize=8)
+    # ax.legend(fontsize=8)
 
     # -------------------------------------------Partie dans le plan (S11,S12)--------------------------------------
 
@@ -389,7 +425,14 @@ def plot_isosurface_strut_material(full_props, xi_values, cell, axes, i=0):
     ax.scatter(X_points, Y_points, label=f"{cell}")
 
     setup_ax(ax, r"$\sigma_{11} [MPa]$", r"$\sigma_{12} [MPa]$")
-    ax.legend(fontsize=8)
+    handles, labels = ax.get_legend_handles_labels()
+    # ax.legend(
+    #     dict(zip(labels, handles)).values(),
+    #     dict(zip(labels, handles)).keys(),
+    #     fontsize=8,
+    #     bbox_to_anchor=(1.05, 1),
+    #     loc="upper center",
+    # )
 
 
 def plot_stress_strain_loads(full_props, cell, axs):
