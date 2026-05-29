@@ -148,7 +148,7 @@ def main() -> None:
     # Datasets and loaders
     train_dataset = TensorDataset(x_train, y_train)
     test_dataset = TensorDataset(x_test, y_test)
-    batch_size = 128
+    batch_size = 512
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 

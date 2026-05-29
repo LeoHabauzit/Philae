@@ -172,18 +172,18 @@ def read_data(filename, i=0):
     # )
     df = pd.read_csv(filename)
 
-    e11 = df["e11"].values[j : j + 102]
-    e22 = df["e22"].values[j : j + 102]
-    e33 = df["e33"].values[j : j + 102]
-    e12 = df["e12"].values[j : j + 102]
-    e13 = df["e13"].values[j : j + 102]
-    e23 = df["e23"].values[j : j + 102]
-    s11 = df["s11"].values[j : j + 102]
-    s22 = df["s22"].values[j : j + 102]
-    s33 = df["s33"].values[j : j + 102]
-    s12 = df["s12"].values[j : j + 102]
-    s13 = df["s13"].values[j : j + 102]
-    s23 = df["s23"].values[j : j + 102]
+    e11 = df["total_strain_xx"].values[j : j + 102]
+    e22 = df["total_strain_yy"].values[j : j + 102]
+    e33 = df["total_strain_zz"].values[j : j + 102]
+    e12 = df["total_strain_xy"].values[j : j + 102]
+    e13 = df["total_strain_xz"].values[j : j + 102]
+    e23 = df["total_strain_yz"].values[j : j + 102]
+    s11 = df["stress_xx"].values[j : j + 102]
+    s22 = df["stress_yy"].values[j : j + 102]
+    s33 = df["stress_zz"].values[j : j + 102]
+    s12 = df["stress_xy"].values[j : j + 102]
+    s13 = df["stress_xz"].values[j : j + 102]
+    s23 = df["stress_yz"].values[j : j + 102]
     time = df["timestep"].values[j : j + 102]
 
     fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
