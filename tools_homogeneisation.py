@@ -1,5 +1,6 @@
 import numpy as np
-import os, sys
+import os
+import sys
 from scipy.interpolate import interp1d, PchipInterpolator
 from scipy.optimize import root_scalar
 from plot_criteria import *
@@ -514,11 +515,7 @@ def plot_xi_stress(full_props, cell, axs):
         "shear",
     }
     index = 50
-<<<<<<< HEAD
     fig, ax_bis = plt.subplots()
-=======
-    fig1, ax1 = plt.subplots()
->>>>>>> main
     for i, typesim in enumerate(sorted(typesim_to_loads)):
         losses = []
         row = i // 3
@@ -539,10 +536,6 @@ def plot_xi_stress(full_props, cell, axs):
         xi_exp = np.loadtxt(
             f"{data_simu_dir}/SXY/data_{results_dir}/Xi_{results_dir}.txt"
         )
-<<<<<<< HEAD
-
-=======
->>>>>>> main
         if typesim == "shear":
             stress_num = s12
             strain_num = e12
@@ -583,23 +576,12 @@ def plot_xi_stress(full_props, cell, axs):
         xi_exp_interp = interp_exp(strain_common)
 
         # --- plots ---
-<<<<<<< HEAD
         ax.plot(strain_common, xi_num_interp, c="orange", label="UMAT SMA")
         ax.plot(strain_common, xi_exp_interp, label=typesim)
         ratio = xi_exp_interp / (xi_num_interp + 1e-3)
         ax.plot(strain_common, ratio, label="ratio", color="green")
         ax_bis.plot(np.abs(strain_common), np.abs(ratio), label=f"{typesim}")
         ax.set_xlabel("E11 [-]")
-=======
-        # ax.plot(strain_common, xi_num_interp, c="green", label="UMAT SMA")
-        # ax.plot(strain_common, xi_exp_interp, label=typesim)
-        ax.plot(xi_num, stress_num, c="red", label="UMAT SMA")
-        ax.plot(xi_exp, stress_exp, label=typesim)
-        ratio = xi_exp_interp / (xi_num_interp)
-        # ax.plot(strain_common, ratio, label="ratio")
-        ax1.plot(np.abs(strain_common), ratio, label=f"{typesim}")
-        ax.set_xlabel("S11 [MPa]")
->>>>>>> main
         ax.set_ylabel("f [-]")
         ax.grid()
         ax.legend()
