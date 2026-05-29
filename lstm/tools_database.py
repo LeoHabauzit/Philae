@@ -88,11 +88,11 @@ def add_zeros_to_arrays(variables):
     return [np.insert(v, 0, 0) for v in variables]
 
 
-def generate_data_csv(props, n_simulations, umat_name="SMAAC"):
-    os.remove("lstm/train_dataset.csv") if os.path.exists(
-        "lstm/train_dataset.csv"
-    ) else None
-    csv_file = "lstm/train_dataset.csv"
+def generate_data_csv(
+    props, n_simulations, umat_name="SMAAC", csv_file="lstm/dataset/train_dataset.csv"
+):
+    os.remove(csv_file) if os.path.exists(csv_file) else None
+
     sim_ids = np.random.choice(np.arange(1, 10001), size=n_simulations, replace=False)
     for k in range(n_simulations):
         generer_path_txt(
