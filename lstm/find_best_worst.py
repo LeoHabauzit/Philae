@@ -80,9 +80,9 @@ def main() -> None:
         output_size=OUTPUT_SIZE,
         num_layers=NUM_LAYERS,
     )
-    model.load_state_dict(torch.load(MODEL_PTH, map_location=device, weights_only=True))
-    # checkpoint = torch.load(MODEL_PTH, map_location=device, weights_only=True)
-    # model.load_state_dict(checkpoint["model_state_dict"])
+    # model.load_state_dict(torch.load(MODEL_PTH, map_location=device, weights_only=True))
+    checkpoint = torch.load(MODEL_PTH, map_location=device, weights_only=True)
+    model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
     print(f"Modèle chargé depuis '{MODEL_PTH}'")
 

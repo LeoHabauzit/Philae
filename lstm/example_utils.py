@@ -177,6 +177,8 @@ def plot_loss_curves(
         linewidth=2,
     )
 
+    plt.yscale("log")
+
     if val_losses is not None:
         val_epochs = range(1, len(val_losses) + 1)
         plt.plot(

@@ -71,8 +71,24 @@ def train(
     test_dataloader: DataLoader,
     num_epochs: int = 100,
     device: str = "cuda",
+    lr_patience: int = 20,
+    lr_factor: float = 0.8,
+    lr_min: float = 1e-6,
+    early_stopping_patience: int = 50,
 ) -> tuple[list[float], list[float]]:
     model.to(device)
+    # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    #     optimizer,
+    #     mode="min",  # on surveille une loss (à minimiser)
+    #     factor=lr_factor,  # nouveau_lr = lr * factor
+    #     patience=lr_patience,
+    #     min_lr=lr_min,
+    # )
+
+    # best_test_loss = float("inf")
+    # epochs_without_improvement = 0
+    # best_model_state = None
+
     train_losses: list[float] = []
     test_losses: list[float] = []
     for epoch in range(num_epochs):
@@ -108,13 +124,37 @@ def train(
         avg_train_loss = train_loss_total / len(train_dataloader)
         avg_test_loss = test_loss_total / len(test_dataloader)
 
+        # current_lr = optimizer.param_groups[0]["lr"]
         print(
             f"Epoch [{epoch + 1}/{num_epochs}] "
             f"Train Loss: {avg_train_loss:.6f} "
             f"Test Loss: {avg_test_loss:.6f}"
+            # f" LR: {current_lr:.2e}"
         )
         train_losses.append(avg_train_loss)
         test_losses.append(avg_test_loss)
+
+        # scheduler.step(avg_test_loss)
+
+    #     if avg_test_loss < best_test_loss:
+    #         best_test_loss = avg_test_loss
+    #         epochs_without_improvement = 0
+    #         # On sauvegarde le meilleur état en mémoire
+    #         best_model_state = {k: v.clone() for k, v in model.state_dict().items()}
+    #     else:
+    #         epochs_without_improvement += 1
+    #         if epochs_without_improvement >= early_stopping_patience:
+    #             print(
+    #                 f"\n⏹ Early stopping à l'époque {epoch + 1} "
+    #                 f"(pas d'amélioration depuis {early_stopping_patience} époques)."
+    #             )
+    #             break
+
+    # # On recharge le meilleur état trouvé pendant l'entraînement
+    # if best_model_state is not None:
+    #     model.load_state_dict(best_model_state)
+    #     print(f"Meilleur modèle rechargé (test loss = {best_test_loss:.6f})")
+
     return train_losses, test_losses
 
 
@@ -170,7 +210,7 @@ def main() -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Train model
-    num_epochs = 500
+    num_epochs = 2000
     train_loss_curve, test_loss_curve = train(
         model,
         criterion,
@@ -192,7 +232,8 @@ def main() -> None:
     )
     # Test the model with a sample from test dataset
     with torch.no_grad():
-        model.load_state_dict(torch.load(weights_path, weights_only=True))
+        checkpoint = torch.load(weights_path, map_location=device, weights_only=True)
+        model.load_state_dict(checkpoint["model_state_dict"])
         model.eval()
 
         # Choose a sample from test set
