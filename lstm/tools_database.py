@@ -89,17 +89,22 @@ def add_zeros_to_arrays(variables):
 
 
 def generate_data_csv(
-    props, n_simulations, umat_name="SMAAC", csv_file="lstm/dataset/train_dataset.csv"
+    props,
+    n_simulations,
+    umat_name="SMAAC",
+    csv_file="lstm/dataset/train_dataset.csv",
+    stress_lim=150,
 ):
     os.remove(csv_file) if os.path.exists(csv_file) else None
 
     sim_ids = np.random.choice(np.arange(1, 10001), size=n_simulations, replace=False)
     for k in range(n_simulations):
+        print(k)
         generer_path_txt(
             filename="Umat/data/path_random.txt",
             temperature_initiale=300,
             Dn_inc=0.02,
-            stress_lim=200,
+            stress_lim=stress_lim,
         )
         umat_sma_random(props, umat_name)
         os.remove("Umat/data/path_random.txt")

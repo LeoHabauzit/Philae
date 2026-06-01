@@ -170,7 +170,7 @@ def main() -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Train model
-    num_epochs = 2000
+    num_epochs = 500
     train_loss_curve, test_loss_curve = train(
         model,
         criterion,
@@ -182,7 +182,14 @@ def main() -> None:
     )
     example_utils.plot_loss_curves(train_loss_curve, test_loss_curve)
     weights_path = "model.pth"
-    torch.save(model.state_dict(), weights_path)
+    torch.save(
+        {
+            "model_state_dict": model.state_dict(),
+            "train_losses": train_loss_curve,
+            "test_losses": test_loss_curve,
+        },
+        weights_path,
+    )
     # Test the model with a sample from test dataset
     with torch.no_grad():
         model.load_state_dict(torch.load(weights_path, weights_only=True))

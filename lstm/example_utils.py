@@ -32,32 +32,46 @@ def plot_stress_strain_curve(
     sim_id: Optional[int] = None,
 ) -> None:
     """
-    Plot each stress–strain component in a separate subplot.
+    Plot each stress–strain component in a 2x3 grid of subplots.
     """
     n_components = strain_sequence.shape[1]
+
+    n_rows = 2
+    n_cols = 3
+
     fig, axes = plt.subplots(
-        n_components, 1, figsize=(6, 3 * n_components), sharex=True
+        n_rows,
+        n_cols,
+        figsize=(5 * n_cols, 4 * n_rows),
+        sharex=True,
     )
+
+    axes = axes.flatten()
 
     for i in range(n_components):
         ax = axes[i]
         ax.plot(
             strain_sequence[:, i].numpy(),
             stress_sequence[:, i].numpy(),
-            label=f"{component_labels[i]}",
+            label=component_labels[i],
             linewidth=2,
             color="blue",
         )
+        ax.set_xlabel("Strain", fontsize=12)
         ax.set_ylabel("Stress", fontsize=12)
         ax.grid(True)
         ax.legend(fontsize=10)
         ax.set_title(f"Component {component_labels[i]}", fontsize=12)
 
-    axes[-1].set_xlabel("Strain", fontsize=12)
+    # Cache les axes inutilisés si n_components < 6
+    for j in range(n_components, len(axes)):
+        axes[j].set_visible(False)
+
     fig.suptitle(
-        f"{title}" if sim_id is None else f"{title} (Simulation {sim_id})",
+        title if sim_id is None else f"{title} (Simulation {sim_id})",
         fontsize=14,
     )
+
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
 
@@ -94,10 +108,12 @@ def plot_stress_strain_sample_with_prediction(
     Plot predicted vs true stress–strain curves in separate subplots.
     """
     n_components = strain_sequence.shape[1]
+    n_rows = 2
+    n_cols = 3
     fig, axes = plt.subplots(
-        n_components, 1, figsize=(6, 3 * n_components), sharex=True
+        n_rows, n_cols, figsize=(5 * n_cols, 4 * n_rows), sharex=True
     )
-
+    axes = axes.flatten()
     for i in range(n_components):
         ax = axes[i]
         ax.plot(

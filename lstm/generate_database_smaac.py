@@ -14,7 +14,9 @@ props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
 finalprops = vect_props_smaac(props_var, props_cubic)
 
 # props = read_props("simuEF/params_sma_init.txt")
-generate_data_csv(finalprops, 1000, csv_file="lstm/dataset/test_dataset.csv")
+generate_data_csv(
+    finalprops, 3000, csv_file="lstm/dataset/test_dataset.csv", stress_lim=150
+)
 # read_data("lstm/train_dataset.csv", i=1)
 t2 = time.time()
 print(f"Time taken: {t2 - t1:.2f} seconds")
