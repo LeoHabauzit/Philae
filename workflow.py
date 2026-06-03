@@ -1,3 +1,11 @@
+try:
+    from scipy.sparse.linalg._dsolve.linsolve import useUmfpack as _scipy_uu
+
+    if not hasattr(_scipy_uu, "u"):
+        _scipy_uu.u = True  # active umfpack, évite le crash dans base.py
+except Exception:
+    pass
+
 from pathlib import Path
 import numpy as np
 from tools_homogeneisation import *
