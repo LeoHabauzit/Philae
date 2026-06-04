@@ -421,3 +421,127 @@ def run_linear_homogenization(
                 f.write(f"{val:.8e}\n")
 
     return props_cubic
+
+
+def plot_data_6D(stress_array, strain_array, time):
+    e11 = strain_array[0]
+    e22 = strain_array[1]
+    e33 = strain_array[2]
+    e12 = strain_array[3]
+    e13 = strain_array[4]
+    e23 = strain_array[5]
+    s11 = stress_array[0]
+    s22 = stress_array[1]
+    s33 = stress_array[2]
+    s12 = stress_array[3]
+    s13 = stress_array[4]
+    s23 = stress_array[5]
+
+    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+
+    # ---------- Contraintes s ----------
+    axs[0, 0].plot(time, s11, color="tab:blue")
+    axs[0, 0].set_title("σ11")
+    axs[0, 0].set_ylabel("[MPa]")
+    axs[0, 0].grid(True)
+
+    axs[0, 1].plot(time, s22, color="tab:orange")
+    axs[0, 1].set_title("σ22")
+    axs[0, 1].grid(True)
+
+    axs[0, 2].plot(time, s33, color="tab:green")
+    axs[0, 2].set_title("σ33")
+    axs[0, 2].grid(True)
+
+    axs[1, 0].plot(time, s12, color="tab:red")
+    axs[1, 0].set_title("σ12 ")
+    axs[1, 0].set_xlabel("Temps (s)")
+    axs[1, 0].set_ylabel("[MPa]")
+    axs[1, 0].grid(True)
+
+    axs[1, 1].plot(time, s13, color="tab:purple")
+    axs[1, 1].set_title("σ13")
+    axs[1, 1].set_xlabel("Temps (s)")
+    axs[1, 1].grid(True)
+
+    axs[1, 2].plot(time, s23, color="tab:brown")
+    axs[1, 2].set_title("σ23")
+    axs[1, 2].set_xlabel("Temps (s)")
+    axs[1, 2].grid(True)
+
+    fig.suptitle("Contraintes σ", fontsize=16)
+    plt.tight_layout()
+    plt.show()
+
+    # ---------- Déformations e ----------’
+    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+
+    axs[0, 0].plot(time, e11, color="tab:blue")
+    axs[0, 0].set_title("ε11")
+    axs[0, 0].set_ylabel("[–]")
+    axs[0, 0].grid(True)
+
+    axs[0, 1].plot(time, e22, color="tab:orange")
+    axs[0, 1].set_title("ε22")
+    axs[0, 1].grid(True)
+
+    axs[0, 2].plot(time, e33, color="tab:green")
+    axs[0, 2].set_title("ε33")
+    axs[0, 2].grid(True)
+
+    axs[1, 0].plot(time, e12, color="tab:red")
+    axs[1, 0].set_title("ε12")
+    axs[1, 0].set_xlabel("Temps (s)")
+    axs[1, 0].set_ylabel("[–]")
+    axs[1, 0].grid(True)
+
+    axs[1, 1].plot(time, e13, color="tab:purple")
+    axs[1, 1].set_title("ε13")
+    axs[1, 1].set_xlabel("Temps (s)")
+    axs[1, 1].grid(True)
+
+    axs[1, 2].plot(time, e23, color="tab:brown")
+    axs[1, 2].set_title("ε23")
+    axs[1, 2].set_xlabel("Temps (s)")
+    axs[1, 2].grid(True)
+
+    fig.suptitle("Déformations ε", fontsize=16)
+
+    # ---------- Déformations e-s ----------’
+    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+
+    axs[0, 0].plot(e11, s11, color="tab:blue")
+    axs[0, 0].set_title("ε11-σ11")
+    axs[0, 0].set_ylabel("[MPa]")
+    axs[0, 0].grid(True)
+
+    axs[0, 1].plot(e22, s22, color="tab:orange")
+    axs[0, 1].set_title("ε22-σ22")
+    axs[0, 1].set_ylabel("[MPa]")
+    axs[0, 1].grid(True)
+
+    axs[0, 2].plot(e33, s33, color="tab:green")
+    axs[0, 2].set_title("ε33-σ33")
+    axs[0, 2].set_ylabel("[MPa]")
+    axs[0, 2].grid(True)
+
+    axs[1, 0].plot(e12, s12, color="tab:red")
+    axs[1, 0].set_xlabel("deformation[-]")
+    axs[1, 0].set_ylabel("[MPa]")
+    axs[1, 0].grid(True)
+
+    axs[1, 1].plot(e13, s13, color="tab:purple")
+    axs[1, 1].set_title("ε13-σ13")
+    axs[1, 1].set_xlabel("deformation[-]")
+    axs[1, 1].grid(True)
+
+    axs[1, 2].plot(e23, s23, color="tab:brown")
+    axs[1, 2].set_title("ε23-σ23")
+    axs[1, 2].set_xlabel("deformation[-]")
+    axs[1, 2].grid(True)
+
+    fig.suptitle("Déformations ε", fontsize=16)
+    plt.tight_layout()
+    plt.show()
+
+    return time, stress_array, strain_array
