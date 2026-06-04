@@ -1,16 +1,5 @@
 import os
 
-os.environ["OMP_NUM_THREADS"] = "1"  # avant tout import de simcoon/fedoo
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-
-try:
-    from scipy.sparse.linalg._dsolve.linsolve import useUmfpack as _scipy_uu
-
-    if not hasattr(_scipy_uu, "u"):
-        _scipy_uu.u = True  # active umfpack, évite le crash dans base.py
-except Exception:
-    pass
 import fedoo as fd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,7 +22,6 @@ cell = "RhombicDodecahedron40"
 props_cubic = run_linear_homogenization(f"{cell}")
 props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
 finalprops = vect_props_smaac(props_var, props_cubic)
-# print(finalprops)
 props_init = read_props("simuEF/params_sma_init.txt")
 print("props=", props_init)
 
@@ -176,29 +164,11 @@ mesh = fd.mesh.box_mesh(
     name="Domain",
 )
 
-stress_lim = 400
-stress_target = np.random.uniform(-stress_lim, stress_lim, (1, 6))
+stress_lim = 40
+stress_target = np.random.uniform(-stress_lim * 10, 10 * stress_lim, (1, 6))
 stress_zeros = np.zeros((1, 6))
 print(stress_target)
-# stress_target = np.zeros((1, 6))
-# stress_target[0, 1] = 100
-# print(stress_target)
 
-
-# E = 200e3  # MPa
-# nu = 0.3
-# alpha = 1e-5  # dilatation thermique (mettre 0 si non utilisée)
-# sigma_y = 300  # MPa
-# k = 1000  # module d'écrouissage
-# m = 0.3  # exposant d'écrouissage
-
-# # --- "EPICP" : Elasto-Plasticity Isotropic hardening, power law ---
-# props = np.array([E, nu, alpha, sigma_y, k, m])
-# material = fd.constitutivelaw.Simcoon("EPICP", props)
-# props = np.array(
-#     [140000.0, 0.3, 1e-6, 62.86, 416.0, 4.79, 30382.0, 172.4, 195142.0, 3012.6]
-# )
-# material = fd.constitutivelaw.Simcoon("EPCHA", props)
 
 material = fd.constitutivelaw.Simcoon("SMAUT", props_init)
 
@@ -214,10 +184,7 @@ pb = fd.problem.NonLinear(assembly)
 pb.set_solver("direct")
 pb.bc.add(fd.constraint.PeriodicBC(periodicity_type="small_strain"))
 
-print(mesh.bounding_box)
 ref_node = mesh.nearest_node(mesh.bounding_box.center)
-print(ref_node)
-
 pb.bc.add("Dirichlet", ref_node, "Disp", 0)
 
 volume = mesh.bounding_box.volume  # = 1.0 mm³ for the unit cube
@@ -228,7 +195,7 @@ pb.bc.add("Neumann", "E_zz", stress_target[0, 2] * volume)
 pb.bc.add("Neumann", "E_xy", stress_target[0, 3] * volume)  # conjugate of γ_xy is σ_xy
 pb.bc.add("Neumann", "E_xz", stress_target[0, 4] * volume)
 pb.bc.add("Neumann", "E_yz", stress_target[0, 5] * volume)
-print(pb.bc)
+
 results = pb.add_output(
     "test",
     assembly,
@@ -255,23 +222,23 @@ res = pb.get_results(
 dataset = fd.read_data("test.fdz")
 n_iter = dataset.n_iter
 time = np.linspace(0, 2, n_iter + 1)
-# dataset.load(-1)
-# print(dataset.n_iter)
 stress_array = np.zeros((6, n_iter + 1))
-print(stress_array.shape)
 strain_array = np.zeros((6, n_iter + 1))
+mean_strain_array = np.zeros((6, n_iter + 1))
+mean_stress_array = np.zeros((6, n_iter + 1))
 all_components = ["XX", "YY", "ZZ", "XY", "XZ", "YZ"]
 for k in range(dataset.n_iter):
     dataset.load(k)
+
     for i, component in enumerate(all_components, start=0):
         data_stress = dataset.get_data(
-            field="Stress", component=component, data_type="GaussPoint"
+            field="Fext(MeanStrain)", component=component, data_type="GaussPoint"
         )
-        data_strain = dataset.get_data(
-            field="Strain", component=component, data_type="GaussPoint"
+        data_MeanStrain = dataset.get_data(
+            field="MeanStrain", component=component, data_type="GaussPoint"
         )
-        stress_array[i, k + 1] = data_stress[i]
-        strain_array[i, k + 1] = data_strain[i]
+        mean_stress_array[i, k + 1] = data_stress[0]
+        mean_strain_array[i, k + 1] = data_MeanStrain[0]
 
-# plt.plot(time, stress_array)
-plot_data(stress_array, strain_array, time)
+
+plot_data(mean_stress_array, mean_strain_array, time)
