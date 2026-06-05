@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import matplotlib.pyplot as plt
 from simcoon import simmit as sim
+import pandas as pd
 
 
 def dev_fea(v):
@@ -545,3 +546,36 @@ def plot_data_6D(stress_array, strain_array, time):
     plt.show()
 
     return time, stress_array, strain_array
+
+
+def save_data_csv(
+    mean_stress_array,
+    mean_strain_array,
+    time,
+    sim_id,
+    csv_file="simuEF/train_fea.csv",
+):
+    df = pd.DataFrame(
+        {
+            "total_strain_xx": mean_strain_array[0],
+            "total_strain_yy": mean_strain_array[1],
+            "total_strain_zz": mean_strain_array[2],
+            "total_strain_xy": mean_strain_array[3],
+            "total_strain_xz": mean_strain_array[4],
+            "total_strain_yz": mean_strain_array[5],
+            "stress_xx": mean_stress_array[0],
+            "stress_yy": mean_stress_array[1],
+            "stress_zz": mean_stress_array[2],
+            "stress_xy": mean_stress_array[3],
+            "stress_xz": mean_stress_array[4],
+            "stress_yz": mean_stress_array[5],
+            "timestep": time,
+            "simulation_load_id": sim_id,
+        }
+    )
+
+    if not os.path.isfile(csv_file):
+        df.to_csv(csv_file, index=False)
+    else:
+        # append sans réécrire les colonnes
+        df.to_csv(csv_file, mode="a", header=False, index=False)
