@@ -66,7 +66,7 @@ os.remove("simuEF/stress_target.csv") if os.path.exists(
     "simuEF/stress_target.csv"
 ) else None
 sim_ids = np.random.choice(np.arange(1, 10001), size=n_simulations, replace=False)
-
+failed_sims = []
 for j in range(n_simulations):
     print(f"Running random {j + 1} FE computation")
     # props_cubic = run_linear_homogenization(f"{cell}")
@@ -117,7 +117,14 @@ for j in range(n_simulations):
         ["Stress", "Strain", "Disp", "MeanStrain", "Fext(MeanStrain)"],
     )
     pb.set_nr_criterion("Displacement", tol=1e-4, max_subiter=20)
-    pb.nlsolve(dt=0.2, tmax=1, t0=0, update_dt=True, print_info=1, interval_output=0.02)
+    try:
+        pb.nlsolve(
+            dt=0.2, tmax=1, t0=0, update_dt=True, print_info=1, interval_output=0.02
+        )
+    except (RuntimeError, NameError) as e:
+        print(f"[WARNING] Simulation {j + 1} (id={sim_ids[j]}) échouée : {e}")
+        failed_sims.append({"index": j, "sim_id": sim_ids[j], "error": str(e)})
+        continue
 
     for k in range(6):
         pb.bc.remove(-1)
@@ -128,7 +135,16 @@ for j in range(n_simulations):
     pb.bc.add("Neumann", "E_xz", 0)
     pb.bc.add("Neumann", "E_yz", 0)
 
-    pb.nlsolve(dt=0.2, tmax=2, t0=1, update_dt=True, print_info=2, interval_output=0.02)
+    try:
+        pb.nlsolve(
+            dt=0.2, tmax=2, t0=1, update_dt=True, print_info=2, interval_output=0.02
+        )
+    except (RuntimeError, NameError) as e:
+        print(
+            f"[WARNING] Simulation {j + 1} (id={sim_ids[j]}) échouée lors de la deuxième résolution : {e}"
+        )
+        failed_sims.append({"index": j, "sim_id": sim_ids[j], "error": str(e)})
+        continue
     # t2 = time.time()
     # print("Time =", t2 - t1, "s")
     res = pb.get_results(

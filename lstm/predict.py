@@ -15,11 +15,12 @@ from lstm_example import RNNModel
 # PARAMÈTRES À MODIFIER SI BESOIN
 # ─────────────────────────────────────────────
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
-TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-MODEL_PTH = "model.pth"
+# TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
+TEST_CSV = Path("lstm") / "dataset" / "test_fea.csv"
+MODEL_PTH = "model_2000.pth"
 
 # Index de la simulation à afficher (0 = première simulation du jeu de test)
-SAMPLE_INDEX = 999
+SAMPLE_INDEX = 0
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
