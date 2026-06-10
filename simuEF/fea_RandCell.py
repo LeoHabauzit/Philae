@@ -1,5 +1,16 @@
 import os
 
+os.environ["OMP_NUM_THREADS"] = "1"  # avant tout import de simcoon/fedoo
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+
+try:
+    from scipy.sparse.linalg._dsolve.linsolve import useUmfpack as _scipy_uu
+
+    if not hasattr(_scipy_uu, "u"):
+        _scipy_uu.u = True  # active umfpack, évite le crash dans base.py
+except Exception:
+    pass
 import fedoo as fd
 import numpy as np
 
@@ -49,7 +60,7 @@ fd.ModelingSpace("3D")
 
 cell = "RhombicDodecahedron40"
 meshfile = f"simuEF/cellules/{cell}.vtk"
-n_simulations = 3
+n_simulations = 1
 os.remove("simuEF/train_fea.csv") if os.path.exists("simuEF/train_fea.csv") else None
 os.remove("simuEF/stress_target.csv") if os.path.exists(
     "simuEF/stress_target.csv"
@@ -126,7 +137,7 @@ for j in range(n_simulations):
         ["Stress", "Strain", "Disp", "MeanStrain", "Fext(MeanStrain)"],
     )
 
-    dataset = fd.read_data("simuEF/fea_1element.fdz")
+    dataset = fd.read_data("simuEF/fea_RandCell.fdz")
     n_iter = dataset.n_iter
     time = np.linspace(0, 1, n_iter + 1)
     stress_array = np.zeros((6, n_iter + 1))
@@ -146,6 +157,6 @@ for j in range(n_simulations):
             )
             mean_stress_array[i, k + 1] = data_stress[0]
             mean_strain_array[i, k + 1] = data_MeanStrain[0]
-    save_data_csv(mean_strain_array, mean_stress_array, time, sim_ids[j])
+    save_data_csv(mean_stress_array, mean_strain_array, time, sim_ids[j])
 
 # plot_data_6D(mean_stress_array, mean_strain_array, time)

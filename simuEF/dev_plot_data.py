@@ -11,15 +11,13 @@ try:
         _scipy_uu.u = True  # active umfpack, évite le crash dans base.py
 except Exception:
     pass
-
 import sys
 from pathlib import Path
-import time
+import fedoo as fd
+from tools_fea import read_props
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from tools_homogeneisation import *
-from tools_database import generate_data_csv, read_data
-# import torch
+from lstm.tools_database import read_data
+import numpy as np
 
-read_data("lstm/dataset/test_dataset.csv", i=1)
-read_data("lstm/dataset/predictions.csv", i=1)
+read_data("simuEF/train_fea.csv")

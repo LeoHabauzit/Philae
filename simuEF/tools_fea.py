@@ -513,22 +513,23 @@ def plot_data_6D(stress_array, strain_array, time):
 
     axs[0, 0].plot(e11, s11, color="tab:blue")
     axs[0, 0].set_title("ε11-σ11")
-    axs[0, 0].set_ylabel("[MPa]")
+    axs[0, 0].set_ylabel("contrainte[MPa]")
     axs[0, 0].grid(True)
 
     axs[0, 1].plot(e22, s22, color="tab:orange")
     axs[0, 1].set_title("ε22-σ22")
-    axs[0, 1].set_ylabel("[MPa]")
+    axs[0, 1].set_ylabel("contrainte[MPa]")
     axs[0, 1].grid(True)
 
     axs[0, 2].plot(e33, s33, color="tab:green")
     axs[0, 2].set_title("ε33-σ33")
-    axs[0, 2].set_ylabel("[MPa]")
+    axs[0, 2].set_ylabel("contrainte[MPa]")
     axs[0, 2].grid(True)
 
     axs[1, 0].plot(e12, s12, color="tab:red")
+    axs[1, 0].set_title("ε12-σ12")
     axs[1, 0].set_xlabel("deformation[-]")
-    axs[1, 0].set_ylabel("[MPa]")
+    axs[1, 0].set_ylabel("contrainte[MPa]")
     axs[1, 0].grid(True)
 
     axs[1, 1].plot(e13, s13, color="tab:purple")
@@ -541,7 +542,9 @@ def plot_data_6D(stress_array, strain_array, time):
     axs[1, 2].set_xlabel("deformation[-]")
     axs[1, 2].grid(True)
 
-    fig.suptitle("Déformations ε", fontsize=16)
+    fig.suptitle(
+        "Courbes contrainte-déformation sur un élément (aléatoire)", fontsize=16
+    )
     plt.tight_layout()
     plt.show()
 

@@ -177,26 +177,26 @@ def read_data(filename, i=0):
     # )
     df = pd.read_csv(filename)
 
-    e11 = df["total_strain_xx"].values[j : j + 102]
-    e22 = df["total_strain_yy"].values[j : j + 102]
-    e33 = df["total_strain_zz"].values[j : j + 102]
-    e12 = df["total_strain_xy"].values[j : j + 102]
-    e13 = df["total_strain_xz"].values[j : j + 102]
-    e23 = df["total_strain_yz"].values[j : j + 102]
-    s11 = df["stress_xx"].values[j : j + 102]
-    s22 = df["stress_yy"].values[j : j + 102]
-    s33 = df["stress_zz"].values[j : j + 102]
-    s12 = df["stress_xy"].values[j : j + 102]
-    s13 = df["stress_xz"].values[j : j + 102]
-    s23 = df["stress_yz"].values[j : j + 102]
-    time = df["timestep"].values[j : j + 102]
+    e11 = df["total_strain_xx"].values[j : j + 101]
+    e22 = df["total_strain_yy"].values[j : j + 101]
+    e33 = df["total_strain_zz"].values[j : j + 101]
+    e12 = df["total_strain_xy"].values[j : j + 101]
+    e13 = df["total_strain_xz"].values[j : j + 101]
+    e23 = df["total_strain_yz"].values[j : j + 101]
+    s11 = df["stress_xx"].values[j : j + 101]
+    s22 = df["stress_yy"].values[j : j + 101]
+    s33 = df["stress_zz"].values[j : j + 101]
+    s12 = df["stress_xy"].values[j : j + 101]
+    s13 = df["stress_xz"].values[j : j + 101]
+    s23 = df["stress_yz"].values[j : j + 101]
+    time = df["timestep"].values[j : j + 101]
 
     fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
 
     # ---------- Contraintes s ----------
     axs[0, 0].plot(time, s11, color="tab:blue")
     axs[0, 0].set_title("σ11")
-    axs[0, 0].set_ylabel("[MPa]")
+    axs[0, 0].set_ylabel("σ [MPa]")
     axs[0, 0].grid(True)
 
     axs[0, 1].plot(time, s22, color="tab:orange")
@@ -210,7 +210,7 @@ def read_data(filename, i=0):
     axs[1, 0].plot(time, s12, color="tab:red")
     axs[1, 0].set_title("σ12 ")
     axs[1, 0].set_xlabel("Temps (s)")
-    axs[1, 0].set_ylabel("[MPa]")
+    axs[1, 0].set_ylabel("σ [MPa]")
     axs[1, 0].grid(True)
 
     axs[1, 1].plot(time, s13, color="tab:purple")
@@ -232,7 +232,7 @@ def read_data(filename, i=0):
 
     axs[0, 0].plot(time, e11, color="tab:blue")
     axs[0, 0].set_title("ε11")
-    axs[0, 0].set_ylabel("[–]")
+    axs[0, 0].set_ylabel("ε [–]")
     axs[0, 0].grid(True)
 
     axs[0, 1].plot(time, e22, color="tab:orange")
@@ -246,7 +246,7 @@ def read_data(filename, i=0):
     axs[1, 0].plot(time, e12, color="tab:red")
     axs[1, 0].set_title("ε12")
     axs[1, 0].set_xlabel("Temps (s)")
-    axs[1, 0].set_ylabel("[–]")
+    axs[1, 0].set_ylabel("ε [–]")
     axs[1, 0].grid(True)
 
     axs[1, 1].plot(time, e13, color="tab:purple")
@@ -260,5 +260,39 @@ def read_data(filename, i=0):
     axs[1, 2].grid(True)
 
     fig.suptitle("Déformations ε", fontsize=16)
+    # ---------- Déformations e-s ----------’
+    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+
+    axs[0, 0].plot(e11, s11, color="tab:blue")
+    axs[0, 0].set_title("ε11-σ11")
+    axs[0, 0].set_ylabel("σ [MPa]")
+    axs[0, 0].grid(True)
+
+    axs[0, 1].plot(e22, s22, color="tab:orange")
+    axs[0, 1].set_title("ε22-σ22")
+    axs[0, 1].set_ylabel("σ [MPa]")
+    axs[0, 1].grid(True)
+
+    axs[0, 2].plot(e33, s33, color="tab:green")
+    axs[0, 2].set_title("ε33-σ33")
+    axs[0, 2].set_ylabel("σ [MPa]")
+    axs[0, 2].grid(True)
+
+    axs[1, 0].plot(e12, s12, color="tab:red")
+    axs[1, 0].set_xlabel("ε[-]")
+    axs[1, 0].set_ylabel("σ [MPa]")
+    axs[1, 0].grid(True)
+
+    axs[1, 1].plot(e13, s13, color="tab:purple")
+    axs[1, 1].set_title("ε13-σ13")
+    axs[1, 1].set_xlabel("ε[-]")
+    axs[1, 1].grid(True)
+
+    axs[1, 2].plot(e23, s23, color="tab:brown")
+    axs[1, 2].set_title("ε23-σ23")
+    axs[1, 2].set_xlabel("ε[-]")
+    axs[1, 2].grid(True)
+
+    fig.suptitle("Courbes contrainte-déformation", fontsize=16)
     plt.tight_layout()
     plt.show()
