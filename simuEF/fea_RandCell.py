@@ -60,7 +60,7 @@ fd.ModelingSpace("3D")
 
 cell = "RhombicDodecahedron40"
 meshfile = f"simuEF/cellules/{cell}.vtk"
-n_simulations = 1
+n_simulations = 50
 os.remove("simuEF/train_fea.csv") if os.path.exists("simuEF/train_fea.csv") else None
 os.remove("simuEF/stress_target.csv") if os.path.exists(
     "simuEF/stress_target.csv"

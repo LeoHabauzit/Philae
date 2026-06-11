@@ -17,8 +17,9 @@ from lstm_example import RNNModel
 # PARAMÈTRES À MODIFIER SI BESOIN
 # ─────────────────────────────────────────────
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
-TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-MODEL_PTH = "model_2000.pth"
+# TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
+TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23.csv"
+MODEL_PTH = "model_finetuned.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6

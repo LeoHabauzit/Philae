@@ -296,3 +296,35 @@ def read_data(filename, i=0):
     fig.suptitle("Courbes contrainte-déformation", fontsize=16)
     plt.tight_layout()
     plt.show()
+
+
+def split_csv(csv_file, n_train, block_size=101):
+
+    df = pd.read_csv(csv_file)
+
+    split_idx = n_train * block_size
+
+    train_df = df.iloc[:split_idx]
+    test_df = df.iloc[split_idx:]
+    os.remove(
+        f"lstm/dataset/train_fea_dataset_{int(len(train_df) / block_size)}.csv"
+    ) if os.path.exists(
+        f"lstm/dataset/train_fea_dataset_{int(len(train_df) / block_size)}.csv"
+    ) else None
+    os.remove(
+        f"lstm/dataset/test_fea_dataset_{int(len(test_df) / block_size)}.csv"
+    ) if os.path.exists(
+        f"lstm/dataset/test_fea_dataset_{int(len(test_df) / block_size)}.csv"
+    ) else None
+
+    train_df.to_csv(
+        f"lstm/dataset/train_fea_dataset_{int(len(train_df) / block_size)}.csv",
+        index=False,
+    )
+    test_df.to_csv(
+        f"lstm/dataset/test_fea_dataset_{int(len(test_df) / block_size)}.csv",
+        index=False,
+    )
+
+    print(f"Train : {len(train_df) // block_size} blocs")
+    print(f"Test  : {len(test_df) // block_size} blocs")

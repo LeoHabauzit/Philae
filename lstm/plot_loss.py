@@ -7,7 +7,7 @@ Recharge et affiche les courbes de loss depuis le fichier model.pth
 import torch
 import example_utils
 
-MODEL_PTH = "model.pth"
+MODEL_PTH = "model_finetuned.pth"
 
 
 def main() -> None:
@@ -16,8 +16,8 @@ def main() -> None:
 
     # Vérifier que les courbes sont bien présentes
     if "train_losses" not in checkpoint:
-        print("❌ Erreur : ce fichier model.pth ne contient pas les courbes de loss.")
-        print("   → Modifie lstm_example.py avec torch.save({...}) et ré-entraîne.")
+        print("Erreur : ce fichier model ne contient pas les courbes de loss.")
+
         return
 
     train_losses = checkpoint["train_losses"]
