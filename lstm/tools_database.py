@@ -16,8 +16,12 @@ def generer_path_txt(
     Dn_inc=0.001,
     temperature_initiale=300,
     stress_lim=1000,
+    stress_target=None,
 ):
-    stress = np.random.uniform(-stress_lim, stress_lim, (1, 6))
+    if stress_target is None:
+        stress = np.random.uniform(-stress_lim, stress_lim, (1, 6))
+    else:
+        stress = stress_target
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write("#Initial_temperature\n")

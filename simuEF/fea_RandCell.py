@@ -28,7 +28,9 @@ from tools_homogeneisation import (
 from simuEF.tools_fea import read_props, plot_data_6D
 
 
-def save_stress_target(stress_target, sim_id, csv_file="simuEF/stress_target.csv"):
+def save_stress_target(
+    stress_target, sim_id, csv_file="simuEF/csv_files/stress_target.csv"
+):
     s11 = stress_target[:, 0]
     s22 = stress_target[:, 1]
     s33 = stress_target[:, 2]
@@ -61,9 +63,11 @@ fd.ModelingSpace("3D")
 cell = "RhombicDodecahedron40"
 meshfile = f"simuEF/cellules/{cell}.vtk"
 n_simulations = 50
-os.remove("simuEF/train_fea.csv") if os.path.exists("simuEF/train_fea.csv") else None
-os.remove("simuEF/stress_target.csv") if os.path.exists(
-    "simuEF/stress_target.csv"
+os.remove("simuEF/csv_files/train_fea.csv") if os.path.exists(
+    "simuEF/csv_files/train_fea.csv"
+) else None
+os.remove("simuEF/csv_files/stress_target.csv") if os.path.exists(
+    "simuEF/csv_files/stress_target.csv"
 ) else None
 sim_ids = np.random.choice(np.arange(1, 10001), size=n_simulations, replace=False)
 failed_sims = []
@@ -112,7 +116,7 @@ for j in range(n_simulations):
     pb.bc.add("Neumann", "E_yz", stress_target[0, 5] * volume)
 
     results = pb.add_output(
-        "simuEF/fea_RandCell",
+        "simuEF/fdz_files/fea_RandCell",
         assembly,
         ["Stress", "Strain", "Disp", "MeanStrain", "Fext(MeanStrain)"],
     )
@@ -153,7 +157,7 @@ for j in range(n_simulations):
         ["Stress", "Strain", "Disp", "MeanStrain", "Fext(MeanStrain)"],
     )
 
-    dataset = fd.read_data("simuEF/fea_RandCell.fdz")
+    dataset = fd.read_data("simuEF/fdz_files/fea_RandCell.fdz")
     n_iter = dataset.n_iter
     time = np.linspace(0, 1, n_iter + 1)
     stress_array = np.zeros((6, n_iter + 1))
@@ -173,6 +177,12 @@ for j in range(n_simulations):
             )
             mean_stress_array[i, k + 1] = data_stress[0]
             mean_strain_array[i, k + 1] = data_MeanStrain[0]
-    save_data_csv(mean_stress_array, mean_strain_array, time, sim_ids[j])
+    save_data_csv(
+        mean_stress_array,
+        mean_strain_array,
+        time,
+        sim_ids[j],
+        "simuEF/csv_files/fea_RandCell.csv",
+    )
 
 # plot_data_6D(mean_stress_array, mean_strain_array, time)

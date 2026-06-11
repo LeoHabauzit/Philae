@@ -26,7 +26,9 @@ finalprops = vect_props_smaac(props_var, props_cubic)
 props_init = read_props("simuEF/params_sma_init.txt")
 print("props=", props_init)
 
-os.remove("simuEF/train_fea.csv")
+os.remove("simuEF/csv_files/strain_fea.csv") if os.path.exists(
+    "simuEF/csv_files/strain_fea.csv"
+) else None
 for j in range(1):
     mesh = fd.mesh.box_mesh(
         nx=2,
@@ -120,7 +122,13 @@ for j in range(1):
             mean_stress_array[i, k + 1] = data_stress[0]
             mean_strain_array[i, k + 1] = data_MeanStrain[0]
     print(mean_strain_array.shape)
-    save_data_csv(mean_stress_array, mean_strain_array, time, 1)
+    save_data_csv(
+        mean_stress_array,
+        mean_strain_array,
+        time,
+        1,
+        "simuEF/csv_files/fea_1element.csv",
+    )
 
 # plot_data_6D(mean_stress_array, mean_strain_array, time)
 

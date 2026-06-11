@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from tools_fea import plot_data_6D, read_props
 
 element = 10000
-dataset = fd.read_data("simuEF/fea_RandCell.fdz")
+dataset = fd.read_data("simuEF/fdz_files/fea_RandCell.fdz")
 n_iter = dataset.n_iter
 print("n_iter =", n_iter)
 time = np.linspace(0, 1, n_iter + 1)

@@ -110,7 +110,7 @@ def cell_fea(props, material_law, typesim, load_typesim, cell):
     meshfile = f"simuEF/cellules/{cell}.vtk"
 
     print("Running " + typesim + " FE computation")
-    results_dir = str(Path(__file__).parent / typesim)
+    results_dir = str(Path(__file__).parent)
     output_file = typesim
     if not (os.path.isdir(results_dir)):
         os.mkdir(results_dir)
@@ -168,7 +168,7 @@ def process_element_repartition(typesim, cell):
     base_dir = Path("datas_simu") / cell
 
     results_dir = typesim
-    dataset = fd.read_data(f"simuEF/{typesim}/{typesim}.fdz")
+    dataset = fd.read_data(f"simuEF/fdz_files/{typesim}.fdz")
     if typesim == "shear":
         list_component = {"XY"}
     elif typesim == "tencomp":
@@ -234,7 +234,7 @@ def process_data_fea(typesim, cell):
     base_dir = Path("datas_simu") / cell
 
     results_dir = typesim
-    dataset = fd.read_data(f"simuEF/{typesim}/{typesim}.fdz")
+    dataset = fd.read_data(f"simuEF/fdz_files/{typesim}.fdz")
     if typesim == "shear":
         list_component = {"XY"}
     elif typesim == "tencomp":
@@ -331,7 +331,7 @@ def process_data_fea(typesim, cell):
 
 
 def erase_fea_file(typesim):
-    file = Path(f"simuEF/{typesim}/{typesim}.fdz")
+    file = Path(f"simuEF/fdz_files/{typesim}.fdz")
     if file.exists():
         file.unlink()
 
@@ -556,7 +556,7 @@ def save_data_csv(
     mean_strain_array,
     time,
     sim_id,
-    csv_file="simuEF/train_fea.csv",
+    csv_file="simuEF/fdz_files/train_fea.csv",
 ):
     df = pd.DataFrame(
         {

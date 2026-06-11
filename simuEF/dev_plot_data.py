@@ -20,4 +20,5 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from lstm.tools_database import read_data
 import numpy as np
 
-read_data("simuEF/train_fea_100_cases.csv", i=99)
+read_data("simuEF/train_fea_50_cases.csv", i=0)
+read_data("simuEF/csv_files/compare_umat.csv", i=0)
