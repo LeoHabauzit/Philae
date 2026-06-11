@@ -234,16 +234,18 @@ def simu_umat(
 
 stress_target = np.zeros((1, 6))
 
-stress_target[0, 0] = -103.64959492442343
-stress_target[0, 1] = 93.52810224789157
-stress_target[0, 2] = 26.406946313333773
-stress_target[0, 3] = 74.43363884327178
-stress_target[0, 4] = 64.74594519635413
-stress_target[0, 5] = -70.51733580366411
+stress_target[0, 0] = 65.243535
+stress_target[0, 1] = -94.699172
+stress_target[0, 2] = -123.286809
+stress_target[0, 3] = -64.226
+stress_target[0, 4] = -149.743054
+stress_target[0, 5] = 89.158459
 
 
 # simu_fea(stress_target)
 # simu_umat(stress_target)
+
+
 def plot_compare(list_csv, i=0):
     j = 101 * i
     fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
@@ -273,12 +275,16 @@ def plot_compare(list_csv, i=0):
 
     for filename in list_csv:
         print(filename)
-        if filename.endswith("train_fea_50_cases.csv"):
+        if filename.endswith("test_fea_dataset_23.csv"):
             label = "FEA"
             color = "tab:blue"
         elif filename.endswith("compare_umat.csv"):
             label = "UMAT"
             color = "tab:orange"
+
+        elif filename.endswith("compare_lstm_tuned.csv"):
+            label = "Test LSTM"
+            color = "tab:green"
         df = pd.read_csv(filename)
 
         e11 = df["total_strain_xx"].values[j : j + 101]
@@ -293,7 +299,7 @@ def plot_compare(list_csv, i=0):
         s12 = df["stress_xy"].values[j : j + 101]
         s13 = df["stress_xz"].values[j : j + 101]
         s23 = df["stress_yz"].values[j : j + 101]
-        time = df["timestep"].values[j : j + 101]
+        # time = df["timestep"].values[j : j + 101]
 
         axs[0, 0].plot(e11, s11, color=color, label=label)
 
@@ -320,5 +326,10 @@ def plot_compare(list_csv, i=0):
 
 
 plot_compare(
-    list_csv=["simuEF/train_fea_50_cases.csv", "simuEF/csv_files/compare_umat.csv"], i=0
+    list_csv=[
+        "lstm/dataset/test_fea_dataset_23.csv",
+        "simuEF/csv_files/compare_umat.csv",
+        "simuEF/csv_files/compare_lstm_tuned.csv",
+    ],
+    i=0,
 )
