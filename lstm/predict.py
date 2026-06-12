@@ -7,9 +7,13 @@ pour une simulation choisie du jeu de test.
 from pathlib import Path
 
 import torch
-
+import sys
 import example_utils
 from lstm_example import RNNModel
+
+# sys.path.append(str(Path(__file__).resolve().parent.parent))
+from tools_database import save_data_csv
+import numpy as np
 
 # ─────────────────────────────────────────────
 # PARAMÈTRES À MODIFIER SI BESOIN
@@ -86,7 +90,11 @@ def main() -> None:
 
     sim_id = sim_ids_test[SAMPLE_INDEX].item()
     print(f"Affichage de la simulation id={sim_id} (index {SAMPLE_INDEX})")
-
+    save_data_csv(
+        pred_stress.numpy(),
+        strain_sample.numpy(),
+        csv_file="simuEF/csv_files/compare_lstm_tuned.csv",
+    )
     # 8. Graphique
     example_utils.plot_stress_strain_sample_with_prediction(
         strain_sequence=strain_sample,

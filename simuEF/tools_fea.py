@@ -554,10 +554,17 @@ def plot_data_6D(stress_array, strain_array, time):
 def save_data_csv(
     mean_stress_array,
     mean_strain_array,
-    time,
-    sim_id,
-    csv_file="simuEF/fdz_files/train_fea.csv",
+    time=None,
+    sim_id=None,
+    csv_file="simuEF/csv_files/train_fea.csv",
 ):
+    if time is None:
+        time = np.linspace(0, 1, len(mean_strain_array) + 1).reshape(-1, 1)
+
+    if sim_id is None:
+        sim_id = np.full((len(time), 1), 1)
+
+    print("fonction deprecated, pensez a prendre celle de tools database")
     df = pd.DataFrame(
         {
             "total_strain_xx": mean_strain_array[0],

@@ -40,7 +40,7 @@ y_test = (y_test - y_mean) / y_std
 # Datasets and loaders
 train_dataset = TensorDataset(x_train, y_train)
 test_dataset = TensorDataset(x_test, y_test)
-batch_size = 512
+batch_size = 4
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
@@ -52,6 +52,8 @@ model = RNNModel(
     output_size=6,
     num_layers=2,
 )
+for param in model.rnn.parameters():
+    param.requires_grad = False
 criterion = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 checkpoint = torch.load(MODEL_PTH, map_location=device, weights_only=True)

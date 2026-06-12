@@ -56,9 +56,9 @@ def simu_fea(stress_target):
 
         stress_lim = 150
         sign = np.random.choice([-1, 1], size=(1, 6))
-        magnitude = np.random.uniform(20, stress_lim, size=(1, 6))
+        # magnitude = np.random.uniform(20, stress_lim, size=(1, 6))
 
-        stress_target = sign * magnitude
+        # stress_target = sign * magnitude
         stress_zeros = np.zeros((1, 6))
         # save_stress_target(stress_target, sim_ids[j])
 
@@ -81,6 +81,7 @@ def simu_fea(stress_target):
 
         volume = mesh.bounding_box.volume  # = 1.0 mm³ for the unit cube
         pb.bc.add("Neumann", "E_xx", stress_target[0, 0] * volume)
+        print(stress_target[0, 0] * volume)
         pb.bc.add("Neumann", "E_yy", stress_target[0, 1] * volume)
         pb.bc.add("Neumann", "E_zz", stress_target[0, 2] * volume)
         pb.bc.add(
@@ -158,7 +159,7 @@ def simu_fea(stress_target):
             mean_strain_array,
             time,
             sim_ids[j],
-            "simuEF/csv_files/compare_fea.csv",
+            "simuEF/csv_files/compare_fea_sym2.csv",
         )
 
 
@@ -234,15 +235,15 @@ def simu_umat(
 
 stress_target = np.zeros((1, 6))
 
-stress_target[0, 0] = 65.243535
-stress_target[0, 1] = -94.699172
-stress_target[0, 2] = -123.286809
-stress_target[0, 3] = -64.226
-stress_target[0, 4] = -149.743054
-stress_target[0, 5] = 89.158459
+stress_target[0, 0] = 88.3501285294759  # s11
+stress_target[0, 1] = 30.802512349702884  # s22
+stress_target[0, 2] = 40.81578603157536  # s33
+stress_target[0, 3] = -80.99841068953306  # s12
+stress_target[0, 4] = -33.48984436799942  # s13
+stress_target[0, 5] = -75.28264504580623  # s23
 
 
-# simu_fea(stress_target)
+simu_fea(stress_target)
 # simu_umat(stress_target)
 
 
@@ -325,11 +326,11 @@ def plot_compare(list_csv, i=0):
     plt.show()
 
 
-plot_compare(
-    list_csv=[
-        "lstm/dataset/test_fea_dataset_23.csv",
-        "simuEF/csv_files/compare_umat.csv",
-        "simuEF/csv_files/compare_lstm_tuned.csv",
-    ],
-    i=0,
-)
+# plot_compare(
+#     list_csv=[
+#         "lstm/dataset/test_fea_dataset_23.csv",
+#         "simuEF/csv_files/compare_umat.csv",
+#         "simuEF/csv_files/compare_lstm_tuned.csv",
+#     ],
+#     i=0,
+# )

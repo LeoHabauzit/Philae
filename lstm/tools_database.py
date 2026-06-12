@@ -332,3 +332,63 @@ def split_csv(csv_file, n_train, block_size=101):
 
     print(f"Train : {len(train_df) // block_size} blocs")
     print(f"Test  : {len(test_df) // block_size} blocs")
+
+
+def save_data_csv(
+    mean_stress_array,
+    mean_strain_array,
+    time=None,
+    sim_id=None,
+    csv_file="simuEF/csv_files/default_csv_file.csv",
+):
+    os.remove(csv_file) if os.path.exists(csv_file) else None
+    if time is None:
+        time = np.linspace(0, 1, len(mean_strain_array))
+
+    if sim_id is None:
+        sim_id = np.full(len(time), 1)
+    print(mean_strain_array[0, 0])
+    if mean_strain_array[0, 0] != 0:
+        add_zeros_to_arrays(
+            [
+                mean_strain_array[:, 0],
+                mean_strain_array[:, 1],
+                mean_strain_array[:, 2],
+                mean_strain_array[:, 3],
+                mean_strain_array[:, 4],
+                mean_strain_array[:, 5],
+                mean_stress_array[:, 0],
+                mean_stress_array[:, 1],
+                mean_stress_array[:, 2],
+                mean_stress_array[:, 3],
+                mean_stress_array[:, 4],
+                mean_stress_array[:, 5],
+                time,
+                sim_id,
+            ]
+        )
+    df = pd.DataFrame(
+        {
+            "total_strain_xx": mean_strain_array[:, 0],
+            "total_strain_yy": mean_strain_array[:, 1],
+            "total_strain_zz": mean_strain_array[:, 2],
+            "total_strain_xy": mean_strain_array[:, 3],
+            "total_strain_xz": mean_strain_array[:, 4],
+            "total_strain_yz": mean_strain_array[:, 5],
+            "stress_xx": mean_stress_array[:, 0],
+            "stress_yy": mean_stress_array[:, 1],
+            "stress_zz": mean_stress_array[:, 2],
+            "stress_xy": mean_stress_array[:, 3],
+            "stress_xz": mean_stress_array[:, 4],
+            "stress_yz": mean_stress_array[:, 5],
+            "timestep": time,
+            "simulation_load_id": sim_id,
+        }
+    )
+
+    if not os.path.isfile(csv_file):
+        df.to_csv(csv_file, index=False)
+    else:
+        # append sans réécrire les colonnes
+
+        df.to_csv(csv_file, mode="a", header=False, index=False)
