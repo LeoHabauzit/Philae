@@ -103,6 +103,7 @@ def plot_stress_strain_sample_with_prediction(
     sim_id: Optional[int] = None,
     component_labels: List[str] = ["xx", "yy", "zz", "xy", "xz", "yz"],
     title: str = "Stress–Strain Prediction vs Ground Truth",
+    pdf_file=None,
 ) -> None:
     """
     Plot predicted vs true stress–strain curves in separate subplots.
@@ -131,7 +132,8 @@ def plot_stress_strain_sample_with_prediction(
             color="red",
             label="Predicted",
         )
-        ax.set_ylabel("Stress", fontsize=12)
+        ax.set_ylabel("Stress [MPa]", fontsize=12)
+        ax.set_xlabel("Strain [-]")
         ax.grid(True)
         ax.legend(fontsize=10)
         ax.set_title(f"Component {component_labels[i]}", fontsize=12)
@@ -142,7 +144,10 @@ def plot_stress_strain_sample_with_prediction(
         fontsize=14,
     )
     plt.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.show()
+    if pdf_file is None:
+        plt.show()
+    else:
+        pdf_file.savefig(plt.gcf())
 
 
 def plot_loss_curves(
