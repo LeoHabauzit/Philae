@@ -10,7 +10,7 @@ TRAIN_1_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_fea_dataset_80.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
 TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23.csv"
-MODEL_PTH = "model_2000.pth"
+MODEL_PTH = "model_5000.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
@@ -52,6 +52,7 @@ model = RNNModel(
     output_size=6,
     num_layers=2,
 )
+# freeze les params de du LSTM
 for param in model.rnn.parameters():
     param.requires_grad = False
 criterion = torch.nn.MSELoss()
@@ -71,7 +72,7 @@ train_loss_curve, test_loss_curve = train(
     device=device,
 )
 
-weights_path = "model_finetuned.pth"
+weights_path = "model_finetuned_5000.pth"
 torch.save(
     {
         "model_state_dict": model.state_dict(),

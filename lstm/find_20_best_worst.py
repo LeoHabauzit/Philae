@@ -19,8 +19,8 @@ from lstm_example import RNNModel
 # ─────────────────────────────────────────────
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-MODEL_PTH = "model_2000.pth"
+TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23.csv"
+MODEL_PTH = "model_finetuned.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
@@ -132,8 +132,8 @@ def main() -> None:
     mse = mse_per_simulation(preds_norm, y_test_norm)  # (N,)
 
     sorted_idx = torch.argsort(mse)
-    best_idx = sorted_idx[:20].tolist()
-    worst_idx = sorted_idx[-20:].tolist()
+    best_idx = sorted_idx[:10].tolist()
+    worst_idx = sorted_idx[-10:].tolist()
     worst_idx.reverse()
 
     print("─────────────────────────────────────────────────────\n")

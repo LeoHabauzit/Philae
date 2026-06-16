@@ -168,12 +168,16 @@ def main() -> None:
 
     print(f"Using device = {device}")
     train_dataset_path = Path("lstm") / Path("dataset") / Path("train_dataset.csv")
-    test_dataset_path = Path("lstm") / Path("dataset") / Path("test_dataset.csv")
+    validation_dataset_path = (
+        Path("lstm") / Path("dataset") / Path("validation_dataset.csv")
+    )
     # Load data
     x_train, y_train, sim_ids_train = example_utils.load_data(
         train_dataset_path.as_posix()
     )
-    x_test, y_test, sim_ids_test = example_utils.load_data(test_dataset_path.as_posix())
+    x_val, y_val, sim_ids_val = example_utils.load_data(
+        validation_dataset_path.as_posix()
+    )
     for i in range(3):
         example_utils.plot_stress_strain_sample(
             x_train, y_train, sim_ids_train, sim_index=i
@@ -183,11 +187,11 @@ def main() -> None:
     y_mean, y_std = y_train.mean(), y_train.std()
     x_train = (x_train - x_mean) / x_std
     y_train = (y_train - y_mean) / y_std
-    x_test = (x_test - x_mean) / x_std
-    y_test = (y_test - y_mean) / y_std
+    x_val = (x_val - x_mean) / x_std
+    y_val = (y_val - y_mean) / y_std
     # Datasets and loaders
     train_dataset = TensorDataset(x_train, y_train)
-    test_dataset = TensorDataset(x_test, y_test)
+    test_dataset = TensorDataset(x_val, y_val)
     batch_size = 512
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
@@ -195,9 +199,9 @@ def main() -> None:
     print(f"{x_train.shape=}")
     print(f"{y_train.shape=}")
     print(f"{sim_ids_train.shape=}")
-    print(f"{x_test.shape=}")
-    print(f"{y_test.shape=}")
-    print(f"{sim_ids_test.shape=}")
+    print(f"{x_val.shape=}")
+    print(f"{y_val.shape=}")
+    print(f"{sim_ids_val.shape=}")
 
     # Model, loss, optimizer
     model = RNNModel(
@@ -210,7 +214,7 @@ def main() -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Train model
-    num_epochs = 2000
+    num_epochs = 5000
     train_loss_curve, test_loss_curve = train(
         model,
         criterion,
@@ -220,7 +224,7 @@ def main() -> None:
         num_epochs=num_epochs,
         device=device,
     )
-    example_utils.plot_loss_curves(train_loss_curve, test_loss_curve)
+    # example_utils.plot_loss_curves(train_loss_curve, test_loss_curve)
     weights_path = "model.pth"
     torch.save(
         {
@@ -238,8 +242,8 @@ def main() -> None:
 
         # Choose a sample from test set
         sample_index = 0
-        strain_sample = x_test[sample_index].unsqueeze(0)  # Add batch dimension
-        true_stress_sample = y_test[sample_index]
+        strain_sample = x_val[sample_index].unsqueeze(0)  # Add batch dimension
+        true_stress_sample = y_val[sample_index]
 
         # Predict
         model.eval()

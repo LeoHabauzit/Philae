@@ -302,6 +302,61 @@ def read_data(filename, i=0):
     plt.show()
 
 
+def read_multiple_data(dict_file=None, i=0):
+    """
+    dict_file={
+    "simulation_ref.csv": {
+        "color": "black",
+        "linestyle": "-",
+        "label": "Référence"
+    },
+    "simulation_lstm.csv": {
+        "color": "red",
+        "linestyle": "--",
+        "label": "LSTM"
+    }
+    }
+    """
+    j = 101 * i
+    components = [
+        ("xx", 0, 0),
+        ("yy", 0, 1),
+        ("zz", 0, 2),
+        ("xy", 1, 0),
+        ("xz", 1, 1),
+        ("yz", 1, 2),
+    ]
+
+    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+    for filename, params in dict_file.items():
+        df = pd.read_csv(filename)
+
+        for comp, row, col in components:
+            strain = df[f"total_strain_{comp}"].values[j : j + 101]
+            stress = df[f"stress_{comp}"].values[j : j + 101]
+
+            ax = axs[row, col]
+
+            ax.plot(
+                strain,
+                stress,
+                color=params["color"],
+                linestyle=params["linestyle"],
+                label=params["label"],
+            )
+
+            ax.set_title(f"{comp}")
+            ax.set_xlabel("ε [-]")
+            ax.set_ylabel("σ [MPa]")
+            ax.grid(True)
+            ax.legend()
+
+        fig.suptitle("Courbes contrainte-déformation", fontsize=16)
+        plt.tight_layout()
+
+    plt.show()
+
+
 def split_csv(csv_file, n_train, block_size=101):
 
     df = pd.read_csv(csv_file)

@@ -33,7 +33,7 @@ props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
 finalprops = vect_props_smaac(props_var, props_cubic)
 
 
-def simu_fea(stress_target):
+def simu_fea(stress_target, csv_file="default_filename.csv"):
     # A LANCER AVEC FEDOO 0.7.0 (ou plus récent) et SIMCOON 1.10.0 (ou plus récent)
     fd.ModelingSpace("3D")
     cell = "RhombicDodecahedron40"
@@ -159,7 +159,7 @@ def simu_fea(stress_target):
             mean_strain_array,
             time,
             sim_ids[j],
-            "simuEF/csv_files/compare_fea_sym2.csv",
+            f"simuEF/csv_files/{csv_file}",
         )
 
 
@@ -242,88 +242,22 @@ stress_target[0, 3] = -80.99841068953306  # s12
 stress_target[0, 4] = -33.48984436799942  # s13
 stress_target[0, 5] = -75.28264504580623  # s23
 
-
-simu_fea(stress_target)
+# simu_fea(stress_target, "ref.csv")
+stress_target_copy1 = stress_target.copy()
+stress_target_copy2 = stress_target.copy()
+stress_target[:, [0, 1]] = stress_target[:, [1, 0]]
+stress_target[:, [4, 5]] = stress_target[:, [5, 4]]  # switch 11 et 22
+print(stress_target)
+# simu_fea(stress_target, "sym1.csv")
+stress_target_copy1[:, [0, 2]] = stress_target_copy1[:, [2, 0]]
+stress_target_copy1[:, [3, 5]] = stress_target_copy1[:, [5, 3]]
+print(stress_target_copy1)
+simu_fea(stress_target, "sym2.csv")
+stress_target_copy2[:, [1, 2]] = stress_target_copy2[:, [2, 1]]
+stress_target_copy2[:, [3, 4]] = stress_target_copy2[:, [4, 3]]
 # simu_umat(stress_target)
-
-
-def plot_compare(list_csv, i=0):
-    j = 101 * i
-    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
-    axs[0, 0].set_title("ε11-σ11")
-    axs[0, 0].set_ylabel("σ [MPa]")
-
-    axs[0, 0].grid(True)
-    axs[0, 1].set_title("ε22-σ22")
-    axs[0, 1].set_ylabel("σ [MPa]")
-    axs[0, 1].grid(True)
-
-    axs[0, 2].set_title("ε33-σ33")
-    axs[0, 2].set_ylabel("σ [MPa]")
-    axs[0, 2].grid(True)
-
-    axs[1, 0].set_xlabel("ε[-]")
-    axs[1, 0].set_ylabel("σ [MPa]")
-    axs[1, 0].grid(True)
-
-    axs[1, 1].set_title("ε13-σ13")
-    axs[1, 1].set_xlabel("ε[-]")
-    axs[1, 1].grid(True)
-
-    axs[1, 2].set_title("ε23-σ23")
-    axs[1, 2].set_xlabel("ε[-]")
-    axs[1, 2].grid(True)
-
-    for filename in list_csv:
-        print(filename)
-        if filename.endswith("test_fea_dataset_23.csv"):
-            label = "FEA"
-            color = "tab:blue"
-        elif filename.endswith("compare_umat.csv"):
-            label = "UMAT"
-            color = "tab:orange"
-
-        elif filename.endswith("compare_lstm_tuned.csv"):
-            label = "Test LSTM"
-            color = "tab:green"
-        df = pd.read_csv(filename)
-
-        e11 = df["total_strain_xx"].values[j : j + 101]
-        e22 = df["total_strain_yy"].values[j : j + 101]
-        e33 = df["total_strain_zz"].values[j : j + 101]
-        e12 = df["total_strain_xy"].values[j : j + 101]
-        e13 = df["total_strain_xz"].values[j : j + 101]
-        e23 = df["total_strain_yz"].values[j : j + 101]
-        s11 = df["stress_xx"].values[j : j + 101]
-        s22 = df["stress_yy"].values[j : j + 101]
-        s33 = df["stress_zz"].values[j : j + 101]
-        s12 = df["stress_xy"].values[j : j + 101]
-        s13 = df["stress_xz"].values[j : j + 101]
-        s23 = df["stress_yz"].values[j : j + 101]
-        # time = df["timestep"].values[j : j + 101]
-
-        axs[0, 0].plot(e11, s11, color=color, label=label)
-
-        axs[0, 1].plot(e22, s22, color=color, label=label)
-
-        axs[0, 2].plot(e33, s33, color=color, label=label)
-
-        axs[1, 0].plot(e12, s12, color=color, label=label)
-
-        axs[1, 1].plot(e13, s13, color=color, label=label)
-
-        axs[1, 2].plot(e23, s23, color=color, label=label)
-
-        fig.suptitle("Courbes contrainte-déformation", fontsize=16)
-
-    axs[0, 0].legend()
-    axs[0, 1].legend()
-    axs[0, 2].legend()
-    axs[1, 0].legend()
-    axs[1, 1].legend()
-    axs[1, 2].legend()
-    plt.tight_layout()
-    plt.show()
+print(stress_target)
+simu_fea(stress_target, "sym3.csv")
 
 
 # plot_compare(
