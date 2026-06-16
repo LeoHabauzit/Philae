@@ -7,7 +7,7 @@ from lstm_example import *
 # PARAMÈTRES À MODIFIER SI BESOIN
 # ─────────────────────────────────────────────
 TRAIN_1_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
-TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_fea_dataset_80.csv"
+TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_fea_dataset_80_augmented.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
 TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23.csv"
 MODEL_PTH = "model_5000.pth"
@@ -40,7 +40,8 @@ y_test = (y_test - y_mean) / y_std
 # Datasets and loaders
 train_dataset = TensorDataset(x_train, y_train)
 test_dataset = TensorDataset(x_test, y_test)
-batch_size = 4
+batch_size = 64
+
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
@@ -53,8 +54,8 @@ model = RNNModel(
     num_layers=2,
 )
 # freeze les params de du LSTM
-for param in model.rnn.parameters():
-    param.requires_grad = False
+# for param in model.rnn.parameters():
+#     param.requires_grad = False
 criterion = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 checkpoint = torch.load(MODEL_PTH, map_location=device, weights_only=True)
