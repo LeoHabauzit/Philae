@@ -30,13 +30,18 @@ files = {
     },
     "simuEF/csv_files/sym1.csv": {
         "color": "red",
-        "linestyle": "--",
+        "linestyle": ":",
         "label": "sym1",
     },
-    # "simuEF/csv_files/compare_fea_sym2.csv": {
-    #     "color": "blue",
-    #     "linestyle": ":",
-    #     "label": "sym2",
-    # },
+    "simuEF/csv_files/sym2.csv": {
+        "color": "green",
+        "linestyle": ":",
+        "label": "sym2",
+    },
+    "simuEF/csv_files/sym3.csv": {
+        "color": "orange",
+        "linestyle": ":",
+        "label": "sym3",
+    },
 }
 read_multiple_data(files)

@@ -34,6 +34,7 @@ finalprops = vect_props_smaac(props_var, props_cubic)
 
 
 def simu_fea(stress_target, csv_file="default_filename.csv"):
+    os.remove(csv_file) if os.path.exists(csv_file) else None
     # A LANCER AVEC FEDOO 0.7.0 (ou plus récent) et SIMCOON 1.10.0 (ou plus récent)
     fd.ModelingSpace("3D")
     cell = "RhombicDodecahedron40"
@@ -251,13 +252,13 @@ print(stress_target)
 # simu_fea(stress_target, "sym1.csv")
 stress_target_copy1[:, [0, 2]] = stress_target_copy1[:, [2, 0]]
 stress_target_copy1[:, [3, 5]] = stress_target_copy1[:, [5, 3]]
-print(stress_target_copy1)
-simu_fea(stress_target, "sym2.csv")
+# print(stress_target_copy1)
+# simu_fea(stress_target=stress_target_copy1, csv_file="sym2.csv")
 stress_target_copy2[:, [1, 2]] = stress_target_copy2[:, [2, 1]]
 stress_target_copy2[:, [3, 4]] = stress_target_copy2[:, [4, 3]]
 # simu_umat(stress_target)
-print(stress_target)
-simu_fea(stress_target, "sym3.csv")
+print(stress_target_copy2)
+simu_fea(stress_target=stress_target_copy2, csv_file="sym3.csv")
 
 
 # plot_compare(

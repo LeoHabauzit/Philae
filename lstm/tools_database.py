@@ -329,6 +329,35 @@ def read_multiple_data(dict_file=None, i=0):
 
     fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
     for filename, params in dict_file.items():
+        if params["label"] == "sym1":
+            print("qsdq")
+            components = [
+                ("xx", 0, 1),
+                ("yy", 0, 0),
+                ("zz", 0, 2),
+                ("xy", 1, 0),
+                ("xz", 1, 2),
+                ("yz", 1, 1),
+            ]
+        elif params["label"] == "sym2":
+            components = [
+                ("xx", 0, 2),
+                ("yy", 0, 1),
+                ("zz", 0, 0),
+                ("xy", 1, 2),
+                ("xz", 1, 1),
+                ("yz", 1, 0),
+            ]
+        elif params["label"] == "sym3":
+            components = [
+                ("xx", 0, 0),
+                ("yy", 0, 2),
+                ("zz", 0, 1),
+                ("xy", 1, 1),
+                ("xz", 1, 0),
+                ("yz", 1, 2),
+            ]
+
         df = pd.read_csv(filename)
 
         for comp, row, col in components:
