@@ -67,7 +67,7 @@ def get_martensite_temp(Mf, Dsf, T0):
     return Ms, As, Af
 
 
-def calc_cost_strain(props_var, list_typesim, cell, props_cubic):
+def calc_cost_smaac(props_var, list_typesim, cell, props_cubic):
     """Calcule la fonction de coût pour un jeu de paramètres donné et un type de simulation,
     en comparant les résultats numériques et expérimentaux (erreur quadratique moyenne)
 
@@ -210,6 +210,80 @@ def vect_props_smaac(props_var, props_cubic):
             M_dfa,
             N_dfa,
             K_dfa,
+        ]
+    )
+
+    return full_props
+
+
+def vect_props_smadi(props_var):
+    E = props_var[0]
+    C = props_var[1]
+    Hmax = props_var[2]
+    sigmacrit = props_var[3]
+    dT = props_var[4]
+    simacaliber = props_var[5]
+    b_prager = props_var[6]
+    n_prager = props_var[7]
+    flagT = 0.0
+    E_A = E
+    E_M = E
+    nu_A = 0.349
+    nu_M = 0.349
+    alphaA = 1.0e-6
+    alphaM = 1.0e-6
+    Hmin = 0.0418
+    Hmax = Hmax
+    k1 = 0.021
+    sigmacrit = sigmacrit
+    C_A = C
+    C_M = C
+
+    Ms0 = 250 + dT
+    Mf0 = 230 + dT
+    As0 = 260 + dT
+    Af0 = 280 + dT
+    n1 = 0.2
+    n2 = 0.2
+    n3 = 0.2
+    n4 = 0.2
+    sigmacaliber = simacaliber
+    b_prager = b_prager
+    n_prager = n_prager
+    c_lambda = 1.0e-6
+    p0_lambda = 1.0e-3
+    n_lambda = 1.0
+    alpha_lambda = 1.0e8
+    full_props = np.array(
+        [
+            flagT,
+            E_A,
+            E_M,
+            nu_A,
+            nu_M,
+            alphaA,
+            alphaM,
+            Hmin,
+            Hmax,
+            k1,
+            sigmacrit,
+            C_A,
+            C_M,
+            Ms0,
+            Mf0,
+            As0,
+            Af0,
+            n1,
+            n2,
+            n3,
+            n4,
+            sigmacaliber,
+            b_prager,
+            n_prager,
+            c_lambda,
+            p0_lambda,
+            n_lambda,
+            alpha_lambda,
         ]
     )
 
@@ -487,8 +561,9 @@ def plot_stress_strain_loads(full_props, cell, axs):
             strain_exp,
             stress_exp,
             label=typesim,
+            c="blue",
         )
-        ax.plot(strain_num, stress_num, c="red", label="UMAT SMA")
+        ax.plot(strain_num, stress_num, c="orange", label="Porous SMA")
         ax.set_xlabel("E11 [%]")
         ax.set_ylabel("S11 [MPa]")
         ax.grid()
@@ -716,7 +791,7 @@ def evol_diff_strain(bounds, cell, n_iter):
     }
     props_cubic = run_linear_homogenization(f"{cell}")
     loss = partial(
-        calc_cost_strain,
+        calc_cost_smaac,
         list_typesim=typesim_to_loads,
         cell=cell,
         props_cubic=props_cubic,
@@ -739,7 +814,7 @@ def evol_diff_strain(bounds, cell, n_iter):
     )
 
 
-def evol_diff_smani(bounds, cell, xi_modif, n_iter):
+def evol_diff_smadi(bounds, cell, xi_modif, n_iter):
     all_params_ani = {}
     props_smadi = vect_props_smadi_test(
         load_variable_props(f"results_params/params_smadi_{cell}.txt")

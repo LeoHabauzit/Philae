@@ -17,9 +17,9 @@ typesim_to_loads = {
     "tencomp",
     "shear",
 }
-list_cell={
+list_cell = {
     # 'RhombicDodecahedron40',
-    'Cuboctahedron40',
+    "Cuboctahedron40",
     # 'Gyroid40'
     # 'Cuboctahedron40_finemesh'
 }
@@ -30,9 +30,9 @@ for i, typesim in enumerate(sorted(typesim_to_loads)):
     col = i % 3
 
     ax = axs[row, col]
-    results_dir = typesim   
+    results_dir = typesim
     for cellule in list_cell:
-        if typesim=='shear':
+        if typesim == "shear":
             stress_array = np.loadtxt(
                 f"datas_simu/{cellule}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
             )
@@ -47,17 +47,19 @@ for i, typesim in enumerate(sorted(typesim_to_loads)):
             strain_array = np.loadtxt(
                 f"datas_simu/{cellule}/SXX/data_{results_dir}/MeanStrain_{results_dir}.txt"
             )
-        xi_array = np.loadtxt(f"datas_simu/{cellule}/SXX/data_{results_dir}/Xi_{results_dir}.txt")
+        xi_array = np.loadtxt(
+            f"datas_simu/{cellule}/SXX/data_{results_dir}/Xi_{results_dir}.txt"
+        )
 
         ax.plot(
-            xi_array,
+            strain_array,
             stress_array,
-            label=f"{typesim}/{cellule}",
+            label=f"{typesim}",
         )
     ax.set_title(f"Plot {typesim}")
     ax.legend(loc="upper left", fontsize=8)
     ax.grid(True)
-    ax.set_xlabel("E11[%]")
+    ax.set_xlabel("E11[-]")
     ax.set_ylabel("S11 [MPa]")
 
 plt.tight_layout()
@@ -68,4 +70,3 @@ plt.grid(True)
 plt.xlabel("E11[%]")
 plt.ylabel("S11 [MPa]")
 plt.show()
-
