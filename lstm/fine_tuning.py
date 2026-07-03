@@ -9,7 +9,7 @@ from lstm_example import *
 TRAIN_1_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_fea_dataset_80_augmented.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23.csv"
+TEST_CSV = Path("lstm") / "dataset" / "train_fea_50_data_reserve_augmented.csv"
 MODEL_PTH = "model_5000.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
@@ -40,7 +40,7 @@ y_test = (y_test - y_mean) / y_std
 # Datasets and loaders
 train_dataset = TensorDataset(x_train, y_train)
 test_dataset = TensorDataset(x_test, y_test)
-batch_size = 64
+batch_size = 32
 
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
@@ -57,7 +57,7 @@ model = RNNModel(
 # for param in model.rnn.parameters():
 #     param.requires_grad = False
 criterion = torch.nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
 checkpoint = torch.load(MODEL_PTH, map_location=device, weights_only=True)
 model.load_state_dict(checkpoint["model_state_dict"])
 model.to(device)
@@ -73,7 +73,7 @@ train_loss_curve, test_loss_curve = train(
     device=device,
 )
 
-weights_path = "model_finetuned_5000.pth"
+weights_path = "model_finetuned_augmented_L2.pth"
 torch.save(
     {
         "model_state_dict": model.state_dict(),

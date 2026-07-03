@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-filename = "lstm/dataset/train_fea_dataset_80.csv"
+filename = "lstm/dataset/train_fea_50_data_reserve.csv"
 
 
 def swap_cols(df, case="x-y"):
@@ -13,6 +13,7 @@ def swap_cols(df, case="x-y"):
             ("stress_xx", "stress_yy"),
             ("stress_xz", "stress_yz"),
         ]
+        df2["simulation_load_id"] = df2["simulation_load_id"] + 10000
     elif case == "x-z":
         swaps = [
             ("total_strain_xx", "total_strain_zz"),
@@ -20,6 +21,7 @@ def swap_cols(df, case="x-y"):
             ("stress_xx", "stress_zz"),
             ("stress_xy", "stress_yz"),
         ]
+        df2["simulation_load_id"] = df2["simulation_load_id"] + 20000
 
     elif case == "y-z":
         swaps = [
@@ -28,6 +30,7 @@ def swap_cols(df, case="x-y"):
             ("stress_yy", "stress_zz"),
             ("stress_xy", "stress_xz"),
         ]
+        df2["simulation_load_id"] = df2["simulation_load_id"] + 30000
     for a, b in swaps:
         df2[a], df2[b] = df2[b].copy(), df2[a].copy()
 

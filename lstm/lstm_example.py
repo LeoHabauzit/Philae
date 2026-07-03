@@ -214,7 +214,7 @@ def main() -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Train model
-    num_epochs = 5000
+    num_epochs = 2000
     train_loss_curve, test_loss_curve = train(
         model,
         criterion,

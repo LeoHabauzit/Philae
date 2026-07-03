@@ -10,7 +10,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import torch
-
+import numpy as np
 import example_utils
 from lstm_example import RNNModel
 
@@ -19,8 +19,8 @@ from lstm_example import RNNModel
 # ─────────────────────────────────────────────
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23.csv"
-MODEL_PTH = "model_finetuned.pth"
+TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23_augmented.csv"
+MODEL_PTH = "model_finetuned_augmented.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
@@ -135,87 +135,95 @@ def main() -> None:
     best_idx = sorted_idx[:10].tolist()
     worst_idx = sorted_idx[-10:].tolist()
     worst_idx.reverse()
+    mse = np.array(mse)
+    print(mse)
+    bins = np.linspace(np.min(mse), np.max(mse), 50)
+    plt.hist(mse, bins=bins, edgecolor="black")
+    plt.xlabel("MSE")
+    plt.ylabel("Prédictions")
+    plt.title("Distribution des MSE sur le jeu de test - n=92")
+    plt.show()
+    print(np.max(mse), np.min(mse))
+    # print("─────────────────────────────────────────────────────\n")
 
-    print("─────────────────────────────────────────────────────\n")
+    # # 8. Dénormalisation et enregistrement dans le PDF
+    # with PdfPages("lstm/best_worst/20Best_predi.pdf") as pdf:
+    #     fig_title = plt.figure(figsize=(10, 4))
+    #     plt.axis("off")
+    #     plt.text(
+    #         0.5,
+    #         0.6,
+    #         "Rapport de prédictions LSTM",
+    #         ha="center",
+    #         va="center",
+    #         fontsize=20,
+    #         fontweight="bold",
+    #     )
+    #     plt.text(
+    #         0.5,
+    #         0.4,
+    #         f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
+    #         ha="center",
+    #         va="center",
+    #         fontsize=12,
+    #     )
+    #     pdf.savefig(fig_title)
+    #     plt.close()
 
-    # 8. Dénormalisation et enregistrement dans le PDF
-    with PdfPages("lstm/best_worst/20Best_predi.pdf") as pdf:
-        fig_title = plt.figure(figsize=(10, 4))
-        plt.axis("off")
-        plt.text(
-            0.5,
-            0.6,
-            "Rapport de prédictions LSTM",
-            ha="center",
-            va="center",
-            fontsize=20,
-            fontweight="bold",
-        )
-        plt.text(
-            0.5,
-            0.4,
-            f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
-            ha="center",
-            va="center",
-            fontsize=12,
-        )
-        pdf.savefig(fig_title)
-        plt.close()
+    #     # 20 meilleures prédictions
+    #     print("=== 20 MEILLEURES prédictions ===")
+    #     for idx in best_idx:
+    #         save_simulation_to_pdf(
+    #             pdf,
+    #             idx,
+    #             sim_ids_test,
+    #             x_test,
+    #             y_test_norm,
+    #             preds_norm,
+    #             y_std,
+    #             y_mean,
+    #             mse,
+    #             category_label="MEILLEURE",
+    #         )
 
-        # 20 meilleures prédictions
-        print("=== 20 MEILLEURES prédictions ===")
-        for idx in best_idx:
-            save_simulation_to_pdf(
-                pdf,
-                idx,
-                sim_ids_test,
-                x_test,
-                y_test_norm,
-                preds_norm,
-                y_std,
-                y_mean,
-                mse,
-                category_label="MEILLEURE",
-            )
+    #     # 20 pires prédictions
 
-        # 20 pires prédictions
-
-    with PdfPages("lstm/best_worst/20_Worst_predi.pdf") as pdf:
-        fig_title = plt.figure(figsize=(10, 4))
-        plt.axis("off")
-        plt.text(
-            0.5,
-            0.6,
-            "Rapport de prédictions LSTM",
-            ha="center",
-            va="center",
-            fontsize=20,
-            fontweight="bold",
-        )
-        plt.text(
-            0.5,
-            0.4,
-            f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
-            ha="center",
-            va="center",
-            fontsize=12,
-        )
-        pdf.savefig(fig_title)
-        plt.close()
-        print("\n=== 20 PIRES prédictions ===")
-        for idx in worst_idx:
-            save_simulation_to_pdf(
-                pdf,
-                idx,
-                sim_ids_test,
-                x_test,
-                y_test_norm,
-                preds_norm,
-                y_std,
-                y_mean,
-                mse,
-                category_label="PIRE",
-            )
+    # with PdfPages("lstm/best_worst/20_Worst_predi.pdf") as pdf:
+    #     fig_title = plt.figure(figsize=(10, 4))
+    #     plt.axis("off")
+    #     plt.text(
+    #         0.5,
+    #         0.6,
+    #         "Rapport de prédictions LSTM",
+    #         ha="center",
+    #         va="center",
+    #         fontsize=20,
+    #         fontweight="bold",
+    #     )
+    #     plt.text(
+    #         0.5,
+    #         0.4,
+    #         f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
+    #         ha="center",
+    #         va="center",
+    #         fontsize=12,
+    #     )
+    #     pdf.savefig(fig_title)
+    #     plt.close()
+    #     print("\n=== 20 PIRES prédictions ===")
+    #     for idx in worst_idx:
+    #         save_simulation_to_pdf(
+    #             pdf,
+    #             idx,
+    #             sim_ids_test,
+    #             x_test,
+    #             y_test_norm,
+    #             preds_norm,
+    #             y_std,
+    #             y_mean,
+    #             mse,
+    #             category_label="PIRE",
+    #         )
 
 
 if __name__ == "__main__":

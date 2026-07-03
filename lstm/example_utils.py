@@ -109,8 +109,8 @@ def plot_stress_strain_sample_with_prediction(
     Plot predicted vs true stress–strain curves in separate subplots.
     """
     n_components = strain_sequence.shape[1]
-    n_rows = 2
-    n_cols = 3
+    n_rows = 3
+    n_cols = 2
     fig, axes = plt.subplots(
         n_rows, n_cols, figsize=(5 * n_cols, 4 * n_rows), sharex=True
     )
