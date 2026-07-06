@@ -7,7 +7,7 @@ Recharge et affiche les courbes de loss depuis le fichier model.pth
 import torch
 import example_utils
 
-MODEL_PTH = "model_finetuned_augmented_L2.pth"
+MODEL_PTH = "model_finetuned_augmented_HS16.pth"
 
 
 def main() -> None:

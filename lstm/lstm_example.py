@@ -59,6 +59,48 @@ class RNNModel(torch.nn.Module):
             output, (hidden_states, cell_state) = self.rnn(
                 input_sequence, (hidden_states, cell_state)
             )
+
+        preds = self.mlp_output_layer(output)
+        return preds, (hidden_states, cell_state)
+
+
+class RNNModel_droppout(torch.nn.Module):
+    def __init__(
+        self,
+        input_features_size: int,
+        hidden_state_size: int,
+        output_size: int,
+        num_layers: int,
+        dropout_p: float = 0.2,
+    ):
+        super().__init__()
+        self.input_features_size = input_features_size
+        self.hidden_state_size = hidden_state_size
+        self.output_size = output_size
+        self.num_layers = num_layers
+        self.rnn = torch.nn.LSTM(
+            input_features_size,
+            hidden_state_size,
+            num_layers,
+            batch_first=True,
+            dropout=dropout_p if num_layers > 1 else 0.0,
+        )
+        self.dropout = torch.nn.Dropout(p=dropout_p)
+        self.mlp_output_layer = torch.nn.Linear(hidden_state_size, output_size)
+
+    def forward(
+        self,
+        input_sequence: Tensor,
+        hidden_states: Optional[Tensor] = None,
+        cell_state: Optional[Tensor] = None,
+    ) -> Tuple[Tensor, Tuple[Tensor, Tensor]]:
+        if hidden_states is None or cell_state is None:
+            output, (hidden_states, cell_state) = self.rnn(input_sequence)
+        else:
+            output, (hidden_states, cell_state) = self.rnn(
+                input_sequence, (hidden_states, cell_state)
+            )
+        output = self.dropout(output)
         preds = self.mlp_output_layer(output)
         return preds, (hidden_states, cell_state)
 
@@ -206,7 +248,7 @@ def main() -> None:
     # Model, loss, optimizer
     model = RNNModel(
         input_features_size=6,
-        hidden_state_size=64,
+        hidden_state_size=16,
         output_size=6,
         num_layers=2,
     )
@@ -225,7 +267,7 @@ def main() -> None:
         device=device,
     )
     # example_utils.plot_loss_curves(train_loss_curve, test_loss_curve)
-    weights_path = "model.pth"
+    weights_path = "model_2000_HS16.pth"
     torch.save(
         {
             "model_state_dict": model.state_dict(),

@@ -19,11 +19,11 @@ from lstm_example import RNNModel
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
 TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23_augmented.csv"
-MODEL_PTH = "model_finetuned_augmented.pth"
+MODEL_PTH = "model_finetuned_augmented_HS32.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
-HIDDEN_SIZE = 64
+HIDDEN_SIZE = 32
 OUTPUT_SIZE = 6
 NUM_LAYERS = 2
 

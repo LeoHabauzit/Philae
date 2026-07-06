@@ -10,13 +10,13 @@ TRAIN_1_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_fea_dataset_80_augmented.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
 TEST_CSV = Path("lstm") / "dataset" / "train_fea_50_data_reserve_augmented.csv"
-MODEL_PTH = "model_5000.pth"
+MODEL_PTH = "model_2000_HS16.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
-INPUT_SIZE = 6
-HIDDEN_SIZE = 64
-OUTPUT_SIZE = 6
-NUM_LAYERS = 2
+# INPUT_SIZE = 6
+# HIDDEN_SIZE = 32
+# OUTPUT_SIZE = 6
+# NUM_LAYERS = 2
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 print(f"Using device = {device}")
@@ -47,11 +47,12 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
 
 # # 1. Charger le modèle pré-entraîné (pareil qu'avant)
-model = RNNModel(
+model = RNNModel_droppout(
     input_features_size=6,
-    hidden_state_size=64,
+    hidden_state_size=16,
     output_size=6,
     num_layers=2,
+    dropout_p=0.0,
 )
 # freeze les params de du LSTM
 # for param in model.rnn.parameters():
@@ -62,7 +63,7 @@ checkpoint = torch.load(MODEL_PTH, map_location=device, weights_only=True)
 model.load_state_dict(checkpoint["model_state_dict"])
 model.to(device)
 
-num_epochs = 2000
+num_epochs = 5000
 train_loss_curve, test_loss_curve = train(
     model,
     criterion,
@@ -73,7 +74,7 @@ train_loss_curve, test_loss_curve = train(
     device=device,
 )
 
-weights_path = "model_finetuned_augmented_L2.pth"
+weights_path = "model_finetuned_augmented_HS16.pth"
 torch.save(
     {
         "model_state_dict": model.state_dict(),

@@ -7,12 +7,19 @@ du jeu de test, calcule l'erreur (MSE) par simulation, puis affiche :
 """
 
 from pathlib import Path
+from torch import randn
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import torch
+from torchmetrics.regression import WeightedMeanAbsolutePercentageError
 import numpy as np
 import example_utils
 from lstm_example import RNNModel
+
+
+def wmape_verif(y_true, y_pred):
+    return torch.sum(torch.abs(y_true - y_pred)) / torch.sum(torch.abs(y_true))
+
 
 # ─────────────────────────────────────────────
 # PARAMÈTRES À MODIFIER SI BESOIN
@@ -20,7 +27,7 @@ from lstm_example import RNNModel
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
 TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23_augmented.csv"
-MODEL_PTH = "model_finetuned_augmented.pth"
+MODEL_PTH = "model_finetuned_augmented_L2.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
@@ -127,7 +134,33 @@ def main() -> None:
     # 6. Prédictions sur tout le jeu de test
     print(f"Prédiction sur {x_test.shape[0]} simulations...")
     preds_norm = predict_all(model, x_test_norm, device)  # (N, T, 6) normalisé
+    print(preds_norm.shape[0], x_test_norm.shape)
+    true_stress = y_test_norm * y_std + y_mean  # dénormalisé
+    pred_stress = preds_norm * y_std + y_mean  # dénormalisé
 
+    wmape = WeightedMeanAbsolutePercentageError()
+    values = []
+    plt.figure(figsize=(10, 6))
+    for k in range(pred_stress.shape[0]):
+        print(pred_stress[k].shape, true_stress[k].shape)
+        # values.append(
+        #     wmape(
+        #         randn(
+        #             10,
+        #         ),
+        #         randn(
+        #             10,
+        #         ),
+        #     )
+        # )
+        print(values)
+        values.append(wmape(pred_stress[k], true_stress[k]))
+        # wmape.update(preds_norm[k], x_test_norm[k])
+    values = np.array(values)
+    bins = np.linspace(np.min(values), np.max(values), 50)
+    plt.hist(values, bins=bins, edgecolor="black")
+    # wmape(preds_norm, x_test_norm)
+    # fig_, ax_ = wmape.plot(values)
     # 7. Calcul du MSE par simulation (en espace normalisé)
     mse = mse_per_simulation(preds_norm, y_test_norm)  # (N,)
 
@@ -137,6 +170,7 @@ def main() -> None:
     worst_idx.reverse()
     mse = np.array(mse)
     print(mse)
+    plt.figure(figsize=(10, 6))
     bins = np.linspace(np.min(mse), np.max(mse), 50)
     plt.hist(mse, bins=bins, edgecolor="black")
     plt.xlabel("MSE")
