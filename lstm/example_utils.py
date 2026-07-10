@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import torch
 from torch import Tensor
+import numpy as np
+import os
 
 
 def plot_stress_strain_curve(

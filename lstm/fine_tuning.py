@@ -2,14 +2,19 @@ import torch
 from pathlib import Path
 import example_utils
 from lstm_example import *
+from tools_database import write_shuffled_repartition_dataset
 
 # ─────────────────────────────────────────────
 # PARAMÈTRES À MODIFIER SI BESOIN
 # ─────────────────────────────────────────────
 TRAIN_1_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
-TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_fea_dataset_80_augmented.csv"
-# TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-TEST_CSV = Path("lstm") / "dataset" / "train_fea_50_data_reserve_augmented.csv"
+
+write_shuffled_repartition_dataset("lstm/dataset/all_fea_cuboctahedron_augmented.csv")
+TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_shuffled.csv"
+# VALIDATION_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
+VALIDATION_CSV = Path("lstm") / "dataset" / "validation_shuffled.csv"
+
+
 MODEL_PTH = "model_2000_HS16.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
@@ -21,7 +26,7 @@ MODEL_PTH = "model_2000_HS16.pth"
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 print(f"Using device = {device}")
 train_dataset_path = TRAIN_FT_CSV
-test_dataset_path = TEST_CSV
+test_dataset_path = VALIDATION_CSV
 # Load data
 x_train1, y_train1, sim_ids_train1 = example_utils.load_data(TRAIN_1_CSV.as_posix())
 x_train, y_train, sim_ids_train = example_utils.load_data(train_dataset_path.as_posix())

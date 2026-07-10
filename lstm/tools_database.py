@@ -476,8 +476,38 @@ def save_data_csv(
 
         df.to_csv(csv_file, mode="a", header=False, index=False)
 
+    # return train_set, validation_set, test_set
 
-def get_repartition_dataset(filename, train_repartition=70, validation_repartition=15):
+
+def write_shuffled_csv(filename, dataset):
+    os.remove(filename) if os.path.exists(filename) else None
+    dataset = dataset.reshape(-1, 14)
+    # print(train_set[:, -1])
+    # print(train_set.shape)
+    df_dataset = pd.DataFrame(
+        {
+            "total_strain_xx": dataset[:, 0],
+            "total_strain_yy": dataset[:, 1],
+            "total_strain_zz": dataset[:, 2],
+            "total_strain_xy": dataset[:, 3],
+            "total_strain_xz": dataset[:, 4],
+            "total_strain_yz": dataset[:, 5],
+            "stress_xx": dataset[:, 6],
+            "stress_yy": dataset[:, 7],
+            "stress_zz": dataset[:, 8],
+            "stress_xy": dataset[:, 9],
+            "stress_xz": dataset[:, 10],
+            "stress_yz": dataset[:, 11],
+            "timestep": dataset[:, 12],
+            "simulation_load_id": dataset[:, 13],
+        }
+    )
+    df_dataset.to_csv(filename, index=False)
+
+
+def write_shuffled_repartition_dataset(
+    filename, train_repartition=70, validation_repartition=15
+):
     df = pd.read_csv(filename)
     df.to_numpy()
     df = np.reshape(df, ((df.shape[0]) // 101, 101, df.shape[1]))
@@ -490,4 +520,7 @@ def get_repartition_dataset(filename, train_repartition=70, validation_repartiti
         df[i + 1 : j + 1, :, :],
         df[j + 1 :, :, :],
     )
-    return train_set, validation_set, test_set
+
+    write_shuffled_csv("lstm/dataset/train_shuffled.csv", train_set)
+    write_shuffled_csv("lstm/dataset/validation_shuffled.csv", validation_set)
+    write_shuffled_csv("lstm/dataset/test_shuffled.csv", test_set)

@@ -81,9 +81,21 @@
 #     return train, validation, test
 
 
-from lstm.tools_database import get_repartition_dataset
+from lstm.tools_database import write_shuffled_repartition_dataset
+import numpy as np
 
-train_set, validation_set, test_set = get_repartition_dataset(
-    "lstm/dataset/all_fea_cuboctahedron_augmented.csv"
-)
-print(train_set.shape)
+# train_set, validation_set, test_set = get_repartition_dataset(
+#     "lstm/dataset/all_fea_cuboctahedron_augmented.csv"
+# )
+# print(train_set.shape)
+write_shuffled_repartition_dataset("lstm/dataset/all_fea_cuboctahedron.csv")
+# U = np.array(
+#     (
+#         ((1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3)),
+#         ((4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6)),
+#     )
+# )
+# V = U[:, :, :2]
+
+# # V = V.reshape((V.shape[0], V.shape[1])
+# print(V.transpose(2, 0, 1).reshape(2, 12))
