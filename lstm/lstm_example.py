@@ -209,9 +209,11 @@ def main() -> None:
         device = "cpu"
 
     print(f"Using device = {device}")
-    train_dataset_path = Path("lstm") / Path("dataset") / Path("train_dataset.csv")
+    train_dataset_path = (
+        Path("lstm") / Path("dataset") / Path("train_fea_dataset_80_augmented.csv")
+    )
     validation_dataset_path = (
-        Path("lstm") / Path("dataset") / Path("validation_dataset.csv")
+        Path("lstm") / Path("dataset") / Path("train_fea_50_data_reserve_augmented.csv")
     )
     # Load data
     x_train, y_train, sim_ids_train = example_utils.load_data(
@@ -234,7 +236,7 @@ def main() -> None:
     # Datasets and loaders
     train_dataset = TensorDataset(x_train, y_train)
     test_dataset = TensorDataset(x_val, y_val)
-    batch_size = 512
+    batch_size = 24
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
@@ -248,7 +250,7 @@ def main() -> None:
     # Model, loss, optimizer
     model = RNNModel(
         input_features_size=6,
-        hidden_state_size=16,
+        hidden_state_size=32,
         output_size=6,
         num_layers=2,
     )
@@ -256,7 +258,7 @@ def main() -> None:
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Train model
-    num_epochs = 2000
+    num_epochs = 5000
     train_loss_curve, test_loss_curve = train(
         model,
         criterion,
@@ -267,7 +269,7 @@ def main() -> None:
         device=device,
     )
     # example_utils.plot_loss_curves(train_loss_curve, test_loss_curve)
-    weights_path = "model_2000_HS16.pth"
+    weights_path = "model_NO_SMAAC.pth"
     torch.save(
         {
             "model_state_dict": model.state_dict(),

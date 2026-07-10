@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-filename = "lstm/dataset/train_fea_50_data_reserve.csv"
+filename = "lstm/dataset/all_fea_cuboctahedron.csv"
 
 
 def swap_cols(df, case="x-y"):
@@ -40,7 +40,6 @@ def swap_cols(df, case="x-y"):
 def data_augmentation_symmetry(
     filename,
 ):
-
     name = Path(filename).with_suffix("")
     components = {"x-y", "x-z", "y-z"}
     df = pd.read_csv(filename)

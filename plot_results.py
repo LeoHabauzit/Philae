@@ -13,7 +13,7 @@ except Exception:
     pass
 from tools_homogeneisation import *
 
-cell = "Cuboctahedron40"
+cell = "Gyroid40"
 props_cubic = run_linear_homogenization(f"{cell}")
 props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
 finalprops = vect_props_smaac(props_var, props_cubic)

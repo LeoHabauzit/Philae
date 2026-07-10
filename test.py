@@ -1,72 +1,89 @@
-from tools_homogeneisation import *
-from Umat.loi_sma import umat_sma
+# import numpy as np
+# import pandas as pd
 
-cell = "Cuboctahedron40"
-props_var = load_variable_props(f"results_params/params_smani_{cell}.txt")
-finalprops = vect_props_smadi(props_var)
-print(finalprops)
+# filename = "lstm/dataset/all_fea_cuboctahedron_augmented.csv"
 
-data_simu_dir = f"simuEF/datas_simu/{cell}"
-typesim_to_loads = {
-    "tension",
-    "biaxial_tension",
-    "compression",
-    "biaxial_compression",
-    "tencomp",
-    "shear",
-}
-fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
-for i, typesim in enumerate(sorted(typesim_to_loads)):
-    losses = []
-    row = i // 3
-    col = i % 3
+# U = np.array(
+#     (
+#         ((1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3)),
+#         ((4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6)),
+#     )
+# )
+# # V = np.array(
+# #     ((1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2))
+# # )
+# V = np.array(
+#     (
+#         (1, 2, 3),
+#         (1, 2, 3),
+#         (1, 2, 3),
+#         (1, 2, 3),
+#         (1, 2, 3),
+#         (1, 2, 3),
+#         (4, 5, 6),
+#         (4, 5, 6),
+#         (4, 5, 6),
+#         (4, 5, 6),
+#         (4, 5, 6),
+#         (4, 5, 6),
+#     )
+# )
+# K = V.copy()
+# K = np.reshape(K, (2, 6, 3))
+# # K.reshape((2, 6, 3))
+# # K.reshape((V.shape[0] // 6, 6, V.shape[1]))
+# print(K.shape)
+# # print(K)
+# np.random.shuffle(K)
+# print(K)
+# # print( // 6)
+# # print(V.shape[0] % 6)
+# # U = np.array((1, 2, 3, 3, 4, 5, 6, 7, 8, 9)).reshape((3, 3))
+# # U.reshape((2, 6))
+# # print(U.shape)
+# # print(U)
+# # np.random.shuffle(U)
+# df = pd.read_csv(filename)
+# df.to_numpy()
+# print((df.shape[0]) // 101)
+# print(df.shape)
+# df = np.reshape(df, ((df.shape[0]) // 101, 101, df.shape[1]))
+# np.random.shuffle(df)
+# print(df.shape)
+# # print(df.shape)
+# # print(df)
+# print(201 // (100 / 70), 201 // (100 / 15))
+# a = df.shape[0]
+# b = int(df.shape[0] // (100 / 70))
+# c = int(df.shape[0] // (100 / 15)) + b + 1
+# # test_len = df.shape[0] - (train_len + valid_len)
+# train, validation, test = (
+#     df[: b + 1, :, :],
+#     df[b + 1 : c + 1, :, :],
+#     df[c + 1 :, :, :],
+# )
+# print(train.shape, validation.shape, test.shape)
 
-    ax = axes_strain[row, col]
-    results_dir = typesim
-    umat_sma(finalprops, typesim, "SMADI")
 
-    outputfile_global = f"Umat/results_SMADI/results_{typesim}_global-0.txt"
+# def get_repartition_dataset(filename, train_repartition=70, validation_repartition=15):
+#     df = pd.read_csv(filename)
+#     df.to_numpy()
+#     df = np.reshape(df, ((df.shape[0]) // 101, 101, df.shape[1]))
+#     np.random.shuffle(df)
 
-    e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23, xi = np.loadtxt(
-        outputfile_global,
-        usecols=(8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 25),
-        unpack=True,
-    )
+#     i = int(df.shape[0] // (100 / train_repartition))
+#     j = int(df.shape[0] // (100 / validation_repartition)) + i + 1
+#     train_set, validation_set, test_set = (
+#         df[: i + 1, :, :],
+#         df[i + 1 : j + 1, :, :],
+#         df[j + 1 :, :, :],
+#     )
+#     return train, validation, test
 
-    if typesim == "shear":
-        strain_num = e12
-        stress_num = s12
-        stress_exp = np.loadtxt(
-            f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
-        )
-        strain_exp = np.loadtxt(
-            f"{data_simu_dir}/SXY/data_{results_dir}/MeanStrain_{results_dir}.txt"
-        )
-    else:
-        strain_num = e11
-        stress_num = s11
-        stress_exp = np.loadtxt(
-            f"{data_simu_dir}/SXX/data_{results_dir}/Stress_{results_dir}.txt"
-        )
-        strain_exp = np.loadtxt(
-            f"{data_simu_dir}/SXX/data_{results_dir}/MeanStrain_{results_dir}.txt"
-        )
 
-    ax.plot(
-        strain_exp,
-        stress_exp,
-        label=typesim,
-    )
-    ax.plot(strain_num, stress_num, c="red", label="UMAT SMA")
-    ax.set_xlabel("E11 [%]")
-    ax.set_ylabel("S11 [MPa]")
-    ax.grid()
-    ax.legend()
-plt.suptitle(f"{cell}")
+from lstm.tools_database import get_repartition_dataset
 
-plt.tight_layout()
-
-# plt.title(f"Plot {typesim}")
-plt.legend(loc="upper left", fontsize=8)
-plt.grid(True)
-plt.show()
+train_set, validation_set, test_set = get_repartition_dataset(
+    "lstm/dataset/all_fea_cuboctahedron_augmented.csv"
+)
+print(train_set.shape)

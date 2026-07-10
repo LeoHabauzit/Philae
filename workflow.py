@@ -1,10 +1,10 @@
-try:
-    from scipy.sparse.linalg._dsolve.linsolve import useUmfpack as _scipy_uu
+# try:
+#     from scipy.sparse.linalg._dsolve.linsolve import useUmfpack as _scipy_uu
 
-    if not hasattr(_scipy_uu, "u"):
-        _scipy_uu.u = True  # active umfpack, évite le crash dans base.py
-except Exception:
-    pass
+#     if not hasattr(_scipy_uu, "u"):
+#         _scipy_uu.u = True  # active umfpack, évite le crash dans base.py
+# except Exception:
+#     pass
 
 from pathlib import Path
 import numpy as np
@@ -42,14 +42,15 @@ lattice_shapes_name = [
     "RhombicDodecahedron",
     "TruncatedOctahedron",
 ]
-for cell_name in lattice_shapes_name:
-    cell = cell_name + "40"
-    for typesim in typesim_to_loads.keys():
-        load = typesim_to_loads.get(typesim)
-        cell_fea(props, material_law, typesim, load, cell)
-        process_data_fea(typesim, cell)
-        erase_fea_file(typesim)
-# run_homogeneisation(cell=cell)
+# for cell_name in lattice_shapes_name:
+#     cell = cell_name + "40"
+#     for typesim in typesim_to_loads.keys():
+#         load = typesim_to_loads.get(typesim)
+#         cell_fea(props, material_law, typesim, load, cell)
+#         process_data_fea(typesim, cell)
+#         erase_fea_file(typesim)
+cell = "Gyroid40"
+run_homogeneisation(cell=cell)
 
 # cell = "Cuboctahedron40"
 # density_to_load = [30, 40, 50, 60]

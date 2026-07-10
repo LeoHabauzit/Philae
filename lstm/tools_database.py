@@ -387,7 +387,6 @@ def read_multiple_data(dict_file=None, i=0):
 
 
 def split_csv(csv_file, n_train, block_size=101):
-
     df = pd.read_csv(csv_file)
 
     split_idx = n_train * block_size
@@ -476,3 +475,19 @@ def save_data_csv(
         # append sans réécrire les colonnes
 
         df.to_csv(csv_file, mode="a", header=False, index=False)
+
+
+def get_repartition_dataset(filename, train_repartition=70, validation_repartition=15):
+    df = pd.read_csv(filename)
+    df.to_numpy()
+    df = np.reshape(df, ((df.shape[0]) // 101, 101, df.shape[1]))
+    np.random.shuffle(df)
+
+    i = int(df.shape[0] // (100 / train_repartition))
+    j = int(df.shape[0] // (100 / validation_repartition)) + i + 1
+    train_set, validation_set, test_set = (
+        df[: i + 1, :, :],
+        df[i + 1 : j + 1, :, :],
+        df[j + 1 :, :, :],
+    )
+    return train_set, validation_set, test_set
