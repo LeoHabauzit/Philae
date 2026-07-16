@@ -1,21 +1,26 @@
 import torch
 from pathlib import Path
 import example_utils
-from lstm_example import *
+from first_training import *
 from tools_database import write_shuffled_repartition_dataset
+import random
 
 # ─────────────────────────────────────────────
 # PARAMÈTRES À MODIFIER SI BESOIN
 # ─────────────────────────────────────────────
 TRAIN_1_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
+shuffle_id = random.randrange(1, 10000)
+print(shuffle_id)
+write_shuffled_repartition_dataset(
+    "lstm/dataset/all_fea_cuboctahedron_augmented.csv", shuffle_id=shuffle_id
+)
 
-write_shuffled_repartition_dataset("lstm/dataset/all_fea_cuboctahedron_augmented.csv")
 TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_shuffled.csv"
 # VALIDATION_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
 VALIDATION_CSV = Path("lstm") / "dataset" / "validation_shuffled.csv"
 
 
-MODEL_PTH = "model_2000_HS16.pth"
+MODEL_PTH = "lstm/models_cuboctahedron40/model_5000_HS32.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 # INPUT_SIZE = 6
@@ -52,12 +57,11 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
 
 # # 1. Charger le modèle pré-entraîné (pareil qu'avant)
-model = RNNModel_droppout(
+model = RNNModel(
     input_features_size=6,
-    hidden_state_size=16,
+    hidden_state_size=32,
     output_size=6,
     num_layers=2,
-    dropout_p=0.0,
 )
 # freeze les params de du LSTM
 # for param in model.rnn.parameters():
@@ -79,7 +83,7 @@ train_loss_curve, test_loss_curve = train(
     device=device,
 )
 
-weights_path = "model_finetuned_augmented_HS16.pth"
+weights_path = f"lstm/models_cuboctahedron40/model_finetuned_test_{shuffle_id}.pth"
 torch.save(
     {
         "model_state_dict": model.state_dict(),

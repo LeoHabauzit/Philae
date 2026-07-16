@@ -88,7 +88,9 @@ import numpy as np
 #     "lstm/dataset/all_fea_cuboctahedron_augmented.csv"
 # )
 # print(train_set.shape)
-write_shuffled_repartition_dataset("lstm/dataset/all_fea_cuboctahedron.csv")
+# write_shuffled_repartition_dataset("lstm/dataset/all_fea_cuboctahedron.csv")
+U = np.array((1, 2, 3))
+print(U * 100)
 # U = np.array(
 #     (
 #         ((1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3)),

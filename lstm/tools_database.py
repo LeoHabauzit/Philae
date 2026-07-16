@@ -4,6 +4,7 @@ import pandas as pd
 import sys
 from pathlib import Path
 import matplotlib.pyplot as plt
+import random
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
@@ -506,7 +507,7 @@ def write_shuffled_csv(filename, dataset):
 
 
 def write_shuffled_repartition_dataset(
-    filename, train_repartition=70, validation_repartition=15
+    filename, shuffle_id, train_repartition=70, validation_repartition=20
 ):
     df = pd.read_csv(filename)
     df.to_numpy()
@@ -520,7 +521,15 @@ def write_shuffled_repartition_dataset(
         df[i + 1 : j + 1, :, :],
         df[j + 1 :, :, :],
     )
+    os.makedirs(f"lstm/dataset/datasets_{shuffle_id}", exist_ok=True)
 
-    write_shuffled_csv("lstm/dataset/train_shuffled.csv", train_set)
-    write_shuffled_csv("lstm/dataset/validation_shuffled.csv", validation_set)
-    write_shuffled_csv("lstm/dataset/test_shuffled.csv", test_set)
+    write_shuffled_csv(
+        f"lstm/dataset/datasets_{shuffle_id}/train_shuffled_{shuffle_id}.csv", train_set
+    )
+    write_shuffled_csv(
+        f"lstm/dataset/datasets_{shuffle_id}/validation_shuffled_{shuffle_id}.csv",
+        validation_set,
+    )
+    write_shuffled_csv(
+        f"lstm/dataset/datasets_{shuffle_id}/test_shuffled_{shuffle_id}.csv", test_set
+    )

@@ -11,16 +11,21 @@ from pathlib import Path
 import torch
 
 import example_utils
-from lstm_example import RNNModel
+from first_training import RNNModel
 
 # ─────────────────────────────────────────────
 # PARAMÈTRES À MODIFIER SI BESOIN
 # ─────────────────────────────────────────────
+shuffle_id = 4023
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23_augmented.csv"
-MODEL_PTH = "model_finetuned_augmented_HS32.pth"
-
+TEST_CSV = (
+    Path("lstm")
+    / "dataset"
+    / f"datasets_{shuffle_id}"
+    / f"test_shuffled_{shuffle_id}.csv"
+)
+MODEL_PTH = f"lstm/models_cuboctahedron40/model_finetuned_test_{shuffle_id}.pth"
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
 HIDDEN_SIZE = 32
@@ -113,7 +118,7 @@ def main() -> None:
         true_stress = y_test_norm[idx] * y_std + y_mean  # dénormalisé
         pred_stress = preds_norm[idx] * y_std + y_mean  # dénormalisé
 
-        title = f"{label} prédiction – MSE={mse[idx]:.6f}"
+        title = f"{label} prédiction – MSE={mse[idx]:.6f} - shuffle_id{shuffle_id}"
         print(f"Affichage : {title} (sim_id={sim_id})")
 
         example_utils.plot_stress_strain_sample_with_prediction(
