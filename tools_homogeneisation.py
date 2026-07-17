@@ -120,6 +120,49 @@ def calc_cost_smaac(props_var, list_typesim, cell, props_cubic):
     return loss
 
 
+def calc_cost_smadi(props_var, list_typesim, cell):
+    losses = []
+    data_simu_dir = f"simuEF/datas_simu/{cell}"
+    for typesim in list_typesim:
+        results_dir = typesim
+        props = vect_props_smadi(props_var)
+        umat_sma(props, typesim, "SMADI")
+        outputfile_global = f"Umat/results_SMADI/results_{typesim}_global-0.txt"
+
+        e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23 = np.loadtxt(
+            outputfile_global,
+            usecols=(8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
+            unpack=True,
+        )
+        if typesim == "shear":
+            strain_num = e12
+            stress_num = s12
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_exp = np.loadtxt(
+                f"{data_simu_dir}/SXY/data_{results_dir}/MeanStrain_{results_dir}.txt"
+            )
+        else:
+            strain_num = e11
+            stress_num = s11
+            stress_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/Stress_{results_dir}.txt"
+            )
+            strain_exp = np.loadtxt(
+                f"{data_simu_dir}/SXX/data_{results_dir}/MeanStrain_{results_dir}.txt"
+            )
+
+        interp = interp1d(
+            strain_exp, stress_exp, kind="linear", fill_value="extrapolate"
+        )
+        stress_exp_interp = interp(strain_num)
+
+        losses.append(np.mean((stress_exp_interp - stress_num) ** 2))
+    loss = np.mean(losses)
+    return loss
+
+
 def vect_props_smaac(props_var, props_cubic):
     Hmax = props_var[0]
     sigmacrit = props_var[1]
@@ -332,35 +375,6 @@ def find_first_stress_at_xi_limit(typesim, xi_lim, cell):
     return s11[idx], s22[idx], s12[idx]
 
 
-def calc_cost_smani(props_var, list_typesim, xi_modif, cell):
-    losses = []
-    props_smadi = load_variable_props(f"results_params/params_smadi_{cell}.txt")
-    props = vect_props_smani(props_var, props_smadi)
-    # print(props_var)
-    for typesim, theta in list_typesim.items():
-        # props = vect_props_smani(props_var)
-        s11_exp, s22_exp, s12_exp = find_first_stress_at_xi_limit(
-            typesim, xi_lim=0.01, cell=cell
-        )
-        if typesim == "shear":
-            r_umat = radius_for_drucker_ani(
-                props=props, xi=xi_modif, T=300.0, theta=theta, plane="s11-s12"
-            )
-            r_exp = np.sqrt(s11_exp**2 + s12_exp**2)
-        else:
-            r_umat = radius_for_drucker_ani(
-                props=props, xi=xi_modif, T=300.0, theta=theta, plane="s11-s22"
-            )
-            r_exp = np.sqrt(s11_exp**2 + s22_exp**2)
-
-        if typesim == "compression" or typesim == "traction":
-            losses.append(10 * ((r_exp - r_umat) ** 2))
-        else:
-            losses.append((r_exp - r_umat) ** 2)
-    loss = np.mean(losses)
-    return loss
-
-
 def right_artificial_xi(props, cell):
     s11_exp, s22_exp, s12_exp = find_first_stress_at_xi_limit(
         "compression", xi_lim=0.01, cell=cell
@@ -510,7 +524,7 @@ def plot_isosurface_strut_material(full_props, xi_values, cell, axes, i=0):
     # )
 
 
-def plot_stress_strain_loads(full_props, cell, axs):
+def plot_stress_strain_loads(full_props, UMAT, cell, axs, color="orange"):
     data_simu_dir = f"simuEF/datas_simu/{cell}"
     typesim_to_loads = {
         "tension",
@@ -528,9 +542,9 @@ def plot_stress_strain_loads(full_props, cell, axs):
 
         ax = axs[row, col]
         results_dir = typesim
-        umat_sma(full_props, typesim, "SMAAC")
+        umat_sma(full_props, typesim, UMAT)
 
-        outputfile_global = f"Umat/results_SMAAC/results_{typesim}_global-0.txt"
+        outputfile_global = f"Umat/results_{UMAT}/results_{typesim}_global-0.txt"
 
         e11, e22, e33, e12, e13, e23, s11, s22, s33, s12, s13, s23, xi = np.loadtxt(
             outputfile_global,
@@ -563,7 +577,7 @@ def plot_stress_strain_loads(full_props, cell, axs):
             label=typesim,
             c="blue",
         )
-        ax.plot(strain_num, stress_num, c="orange", label="Porous SMA")
+        ax.plot(strain_num, stress_num, c=color, label=UMAT, linestyle="--")
         ax.set_xlabel("E11 [%]")
         ax.set_ylabel("S11 [MPa]")
         ax.grid()
@@ -779,7 +793,7 @@ def plot_stress_mises_strain_loads(full_props, cell, axs):
     # plt.ylabel("S11 [MPa]")
 
 
-def evol_diff_strain(bounds, cell, n_iter):
+def evol_diff_smaac(bounds, cell, n_iter):
     all_params = {}
     typesim_to_loads = {
         "tension",
@@ -814,47 +828,41 @@ def evol_diff_strain(bounds, cell, n_iter):
     )
 
 
-def evol_diff_smadi(bounds, cell, xi_modif, n_iter):
-    all_params_ani = {}
-    props_smadi = vect_props_smadi_test(
-        load_variable_props(f"results_params/params_smadi_{cell}.txt")
-    )
-
-    xi_modif = right_artificial_xi(props_smadi, cell)
+def evol_diff_smadi(bounds, cell, n_iter):
+    all_params = {}
     typesim_to_loads = {
-        "tension": 0,
-        "compression": np.pi,
-        "biaxial_compression": -3 * np.pi / 4,
-        "tencomp": 3 * np.pi / 4,
-        "biaxial_tension": np.pi / 4,
-        "shear": np.pi / 2,
+        "tension",
+        "biaxial_tension",
+        "compression",
+        "biaxial_compression",
+        "tencomp",
+        "shear",
     }
-
+    # props_cubic = run_linear_homogenization(f"{cell}")
     loss = partial(
-        calc_cost_smani, list_typesim=typesim_to_loads, xi_modif=xi_modif, cell=cell
+        calc_cost_smadi,
+        list_typesim=typesim_to_loads,
+        cell=cell,
     )
     result = differential_evolution(
-        loss,
-        bounds,
+        func=loss,
+        bounds=bounds,
         maxiter=n_iter,
-        popsize=25,
-        tol=1e-6,
-        mutation=(0.7, 1.5),
-        recombination=0.9,
+        tol=1e-4,
         disp=True,
     )
 
-    all_params_ani["smani"] = result.x
-    df = pd.DataFrame(all_params_ani)
+    all_params["smadi"] = result.x
+    df = pd.DataFrame(all_params)
     df.to_csv(
-        f"results_params/params_smani_{cell}.txt",
+        f"results_params/params_smadi_{cell}.txt",
         index=False,
         sep=" ",
         float_format="%.8e",
     )
 
 
-def run_homogeneisation(cell):
+def run_homogeneisation_smaac(cell):
     bounds = [
         (0.02, 0.12),  # Hmax
         (0, 100),  # sigma crit
@@ -867,4 +875,19 @@ def run_homogeneisation(cell):
         (0, 10),  # K
     ]
 
-    evol_diff_strain(bounds, cell, n_iter=40)
+    evol_diff_smaac(bounds, cell, n_iter=40)
+
+
+def run_homogeneisation_smadi(cell):
+    bounds = [
+        (5000, 12000),  # E
+        (1.0, 11.0),  # C_A C_M
+        (0.02, 0.12),  # Hmax
+        (0, 100),  # sigma crit
+        (0, 80),  # dT
+        (0, 400),  # sigma caliber
+        (-2.0, 2.0),
+        (0.1, 5),  # b  # n
+    ]
+
+    evol_diff_smadi(bounds, cell=cell, n_iter=40)

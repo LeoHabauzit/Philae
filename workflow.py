@@ -23,7 +23,6 @@ np.float_ = np.float64
 # cell = "RhombicDodecahedron40"
 # meshfile = f"cellules/{cell}.vtk"
 
-material_law = "SMAUT"
 
 props = read_props("simuEF/params_sma_init.txt")
 
@@ -49,8 +48,8 @@ lattice_shapes_name = [
 #         cell_fea(props, material_law, typesim, load, cell)
 #         process_data_fea(typesim, cell)
 #         erase_fea_file(typesim)
-cell = "Gyroid40"
-run_homogeneisation(cell=cell)
+cell = "RhombicCuboctahedron40"
+run_homogeneisation_smadi(cell=cell)
 
 # cell = "Cuboctahedron40"
 # density_to_load = [30, 40, 50, 60]

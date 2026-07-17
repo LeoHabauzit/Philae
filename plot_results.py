@@ -13,10 +13,23 @@ except Exception:
     pass
 from tools_homogeneisation import *
 
-cell = "Gyroid40"
+cell = "Cuboctahedron40"
+typesim_to_loads = {
+    "tension",
+    "biaxial_tension",
+    "compression",
+    "biaxial_compression",
+    "tencomp",
+    "shear",
+}
+
+
 props_cubic = run_linear_homogenization(f"{cell}")
-props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
-finalprops = vect_props_smaac(props_var, props_cubic)
+props_var_smaac = load_variable_props(f"results_params/params_smaac_{cell}.txt")
+finalprops_smaac = vect_props_smaac(props_var_smaac, props_cubic)
+
+props_var_smadi = load_variable_props(f"results_params/params_smadi_{cell}.txt")
+finalprops_smadi = vect_props_smadi(props_var_smadi)
 # xi_values = np.arange(0.05, 0.15, 0.02)
 xi_values = []
 # fig, axes_iso = plt.subplots(1, 2, figsize=(12, 5))
@@ -31,8 +44,27 @@ xi_values = []
 # )
 
 fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
-plot_stress_strain_loads(finalprops, cell=cell, axs=axes_strain)
+plot_stress_strain_loads(
+    finalprops_smaac, UMAT="SMAAC", cell=cell, axs=axes_strain, color="orange"
+)
+print(
+    "erreur_finale=",
+    calc_cost_smaac(
+        props_var_smaac,
+        list_typesim=typesim_to_loads,
+        cell=cell,
+        props_cubic=props_cubic,
+    ),
+)
+plot_stress_strain_loads(
+    finalprops_smadi, UMAT="SMADI", cell=cell, axs=axes_strain, color="red"
+)
+# fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
 
+print(
+    "erreur_finale=",
+    calc_cost_smadi(props_var_smadi, list_typesim=typesim_to_loads, cell=cell),
+)
 # fig, axes_strain = plt.subplots(2, 3, figsize=(10, 8))
 # plot_xi_stress(finalprops, cell=cell, axs=axes_strain)
 plt.show()
