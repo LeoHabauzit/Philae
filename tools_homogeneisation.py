@@ -1,16 +1,17 @@
-import numpy as np
 import os
 import sys
-from scipy.interpolate import interp1d, PchipInterpolator
-from scipy.optimize import root_scalar
-from plot_criteria import *
-import matplotlib.pyplot as plt
-from scipy.optimize import differential_evolution, Bounds
 from functools import partial
-import pandas as pd
-from simuEF.tools_fea import run_linear_homogenization
-# parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy.interpolate import PchipInterpolator, interp1d
+from scipy.optimize import Bounds, differential_evolution, root_scalar
+
+from plot_criteria import *
+from simuEF.tools_fea import run_linear_homogenization
+
+# parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # sys.path.append(parent_dir)
 from Umat.loi_sma import umat_sma
 
