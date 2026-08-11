@@ -25,8 +25,8 @@ def setup_ax(ax, xlabel, ylabel):
     ax.yaxis.set_ticks_position("left")
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
-    ax.text(xlim[1], 0, xlabel, fontsize=12, ha="right", va="bottom")
-    ax.text(0, ylim[1], ylabel, fontsize=12, ha="left", va="top")
+    ax.text(280, 0, xlabel, fontsize=12, ha="right", va="bottom")
+    ax.text(0, 280, ylabel, fontsize=12, ha="left", va="top")
 
 
 def load_variable_props(filepath):
@@ -471,7 +471,7 @@ def plot_isosurface_strut_material(full_props, xi_values, cell, axes, i=0):
             X_points.append(coords_typesim[0])
             Y_points.append(coords_typesim[1])
 
-    ax.scatter(X_points, Y_points, label=f"{cell}")
+    ax.scatter(X_points, Y_points, label=r"Cuboctahedron 40 $\xi=0.01$")
 
     setup_ax(ax, r"$\sigma_{11} [MPa]$", r"$\sigma_{22} [MPa]$")
     # ax.legend(fontsize=8)
@@ -512,7 +512,7 @@ def plot_isosurface_strut_material(full_props, xi_values, cell, axes, i=0):
             X_points.append(coords_typesim[0])
             Y_points.append(coords_typesim[2])
 
-    ax.scatter(X_points, Y_points, label=f"{cell}")
+    ax.scatter(X_points, Y_points, label="Cubctahedron 40")
 
     setup_ax(ax, r"$\sigma_{11} [MPa]$", r"$\sigma_{12} [MPa]$")
     handles, labels = ax.get_legend_handles_labels()
@@ -562,6 +562,8 @@ def plot_stress_strain_loads(full_props, UMAT, cell, axs, color="orange"):
             strain_exp = np.loadtxt(
                 f"{data_simu_dir}/SXY/data_{results_dir}/MeanStrain_{results_dir}.txt"
             )
+            ax.set_xlabel("E12 [-]")
+            ax.set_ylabel("S12 [MPa]")
         else:
             strain_num = e11
             stress_num = s11
@@ -571,16 +573,17 @@ def plot_stress_strain_loads(full_props, UMAT, cell, axs, color="orange"):
             strain_exp = np.loadtxt(
                 f"{data_simu_dir}/SXX/data_{results_dir}/MeanStrain_{results_dir}.txt"
             )
+            ax.set_xlabel("E11 [-]")
+            ax.set_ylabel("S11 [MPa]")
 
-        ax.plot(
-            strain_exp,
-            stress_exp,
-            label=typesim,
-            c="blue",
-        )
-        ax.plot(strain_num, stress_num, c=color, label=UMAT, linestyle="--")
-        ax.set_xlabel("E11 [%]")
-        ax.set_ylabel("S11 [MPa]")
+        # ax.plot(
+        #     strain_exp,
+        #     stress_exp,
+        #     label=typesim,
+        #     c="blue",
+        # )
+        ax.plot(strain_num, stress_num, c=color, label=typesim, linestyle="--")
+
         ax.grid()
         ax.legend()
     plt.suptitle(f"{cell}")
@@ -604,8 +607,7 @@ def plot_xi_stress(full_props, cell, axs):
         "tencomp",
         "shear",
     }
-    index = 50
-    fig, ax_bis = plt.subplots()
+
     for i, typesim in enumerate(sorted(typesim_to_loads)):
         losses = []
         row = i // 3
@@ -638,6 +640,8 @@ def plot_xi_stress(full_props, cell, axs):
             # xi_exp = np.loadtxt(
             #     f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
             # )
+            ax.set_ylabel(r"$\xi$ [-]")
+            ax.set_xlabel("E12 [-]")
         else:
             stress_num = s11
             strain_num = e11
@@ -650,6 +654,8 @@ def plot_xi_stress(full_props, cell, axs):
             # xi_exp = np.loadtxt(
             #     f"{data_simu_dir}/SXY/data_{results_dir}/Stress_{results_dir}.txt"
             # )
+            ax.set_ylabel(r"$\xi$ [-]")
+            ax.set_xlabel("E11 [-]")
         stress_min = max(np.min(stress_num), np.min(stress_exp))
         stress_max = min(np.max(stress_num), np.max(stress_exp))
         stress_common = np.linspace(stress_min, stress_max, 200)
@@ -664,15 +670,19 @@ def plot_xi_stress(full_props, cell, axs):
 
         xi_num_interp = interp_num(strain_common)
         xi_exp_interp = interp_exp(strain_common)
+        print(xi_num_interp[-1])
+        if typesim == "compression" or typesim == "biaxial_compression":
+            xi_num_interp = xi_num_interp - np.abs(xi_num_interp[-1])
+        else:
+            xi_num_interp = xi_num_interp - np.abs(xi_num_interp[0])
 
         # --- plots ---
-        ax.plot(strain_common, xi_num_interp, c="orange", label="UMAT SMA")
+        ax.plot(strain_common, xi_num_interp, c="orange", label="SMAAC")
         ax.plot(strain_common, xi_exp_interp, label=typesim)
-        ratio = xi_exp_interp / (xi_num_interp + 1e-3)
-        ax.plot(strain_common, ratio, label="ratio", color="green")
-        ax_bis.plot(np.abs(strain_common), np.abs(ratio), label=f"{typesim}")
-        ax.set_xlabel("E11 [-]")
-        ax.set_ylabel("f [-]")
+        # ratio = xi_exp_interp / (xi_num_interp + 1e-3)
+        # ax.plot(strain_common, ratio, label="ratio", color="green")
+        # ax_bis.plot(np.abs(strain_common), np.abs(ratio), label=f"{typesim}")
+
         ax.grid()
         ax.legend()
     plt.suptitle(f"{cell}")

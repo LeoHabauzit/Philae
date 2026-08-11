@@ -12,27 +12,25 @@ try:
 except Exception:
     pass
 
+from pathlib import Path
+
 import fedoo as fd
+import numpy as np
 
 # from fedoo.core.boundary_conditions import ListBC, BoundaryCondition
 # import Pat
-from tools_fea import *
+from simuEF.tools_fea import *
+from tools_homogeneisation import *
 
-np.float_ = np.float64
-cell = "RhombicDodecahedron40"
-# meshfile = f"cellules/{cell}.vtk"
-
-material_law = "SMADI"
-
+cell = "RhombicCuboctahedron40"
+typesim = "tension"
+material_law = "SMAUT"
 props = read_props("simuEF/params_sma_init.txt")
-
 typesim_to_loads = define_typesim_to_loads(0.05)
+load = typesim_to_loads.get("tension")
+# cell_fea(props, material_law, typesim, load, cell)
+# process_data_fea(typesim, cell)
+# erase_fea_file(typesim)
 
-for typesim in typesim_to_loads.keys():
-    load = typesim_to_loads.get(typesim)
-    cell_fea(props, material_law, typesim, load, cell)
-    process_data_fea(typesim, cell)
-    erase_fea_file(typesim)
 
-plot_results_fea(cell, typesim_to_loads)
-plt.show()
+process_element_repartition(typesim)

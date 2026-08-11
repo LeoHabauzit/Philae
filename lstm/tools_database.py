@@ -1,10 +1,11 @@
 import os
-import numpy as np
-import pandas as pd
+import random
 import sys
 from pathlib import Path
+
 import matplotlib.pyplot as plt
-import random
+import numpy as np
+import pandas as pd
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
@@ -196,39 +197,46 @@ def read_data(filename, i=0):
     s23 = df["stress_yz"].values[j : j + 101]
     time = df["timestep"].values[j : j + 101]
 
-    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+    fig, axs = plt.subplots(2, 3, figsize=(15, 8))
 
     # ---------- Contraintes s ----------
     axs[0, 0].plot(time, s11, color="tab:blue")
-    axs[0, 0].set_title("σ11")
-    axs[0, 0].set_ylabel("σ [MPa]")
+    axs[0, 0].set_title("S11")
+    axs[0, 0].set_ylabel("S11 [MPa]")
+    axs[0, 0].set_xlabel("Time (s)")
     axs[0, 0].grid(True)
 
     axs[0, 1].plot(time, s22, color="tab:orange")
-    axs[0, 1].set_title("σ22")
+    axs[0, 1].set_title("S22")
+    axs[0, 1].set_ylabel("S22 [MPa]")
+    axs[0, 1].set_xlabel("Time (s)")
     axs[0, 1].grid(True)
 
     axs[0, 2].plot(time, s33, color="tab:green")
-    axs[0, 2].set_title("σ33")
+    axs[0, 2].set_title("S33")
+    axs[0, 2].set_ylabel("S33 [MPa]")
+    axs[0, 2].set_xlabel("Time (s)")
     axs[0, 2].grid(True)
 
     axs[1, 0].plot(time, s12, color="tab:red")
-    axs[1, 0].set_title("σ12 ")
-    axs[1, 0].set_xlabel("Temps (s)")
-    axs[1, 0].set_ylabel("σ [MPa]")
+    axs[1, 0].set_title("S12 ")
+    axs[1, 0].set_xlabel("Time (s)")
+    axs[1, 0].set_ylabel("S12 [MPa]")
     axs[1, 0].grid(True)
 
     axs[1, 1].plot(time, s13, color="tab:purple")
-    axs[1, 1].set_title("σ13")
-    axs[1, 1].set_xlabel("Temps (s)")
+    axs[1, 1].set_title("S13")
+    axs[1, 1].set_xlabel("Time (s)")
+    axs[1, 1].set_ylabel("S13 [MPa]")
     axs[1, 1].grid(True)
 
     axs[1, 2].plot(time, s23, color="tab:brown")
-    axs[1, 2].set_title("σ23")
-    axs[1, 2].set_xlabel("Temps (s)")
+    axs[1, 2].set_title("S23")
+    axs[1, 2].set_xlabel("Time (s)")
+    axs[1, 2].set_ylabel("S23 [MPa]")
     axs[1, 2].grid(True)
 
-    fig.suptitle("Contraintes σ", fontsize=16)
+    fig.suptitle("Contraintes S", fontsize=16)
     plt.tight_layout()
     plt.show()
 
@@ -236,66 +244,72 @@ def read_data(filename, i=0):
     fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
 
     axs[0, 0].plot(time, e11, color="tab:blue")
-    axs[0, 0].set_title("ε11")
-    axs[0, 0].set_ylabel("ε [–]")
+    axs[0, 0].set_title("E11")
+    axs[0, 0].set_ylabel("E [–]")
     axs[0, 0].grid(True)
 
     axs[0, 1].plot(time, e22, color="tab:orange")
-    axs[0, 1].set_title("ε22")
+    axs[0, 1].set_title("E22")
     axs[0, 1].grid(True)
 
     axs[0, 2].plot(time, e33, color="tab:green")
-    axs[0, 2].set_title("ε33")
+    axs[0, 2].set_title("E33")
     axs[0, 2].grid(True)
 
     axs[1, 0].plot(time, e12, color="tab:red")
-    axs[1, 0].set_title("ε12")
+    axs[1, 0].set_title("E12")
     axs[1, 0].set_xlabel("Temps (s)")
-    axs[1, 0].set_ylabel("ε [–]")
+    axs[1, 0].set_ylabel("E [–]")
     axs[1, 0].grid(True)
 
     axs[1, 1].plot(time, e13, color="tab:purple")
-    axs[1, 1].set_title("ε13")
+    axs[1, 1].set_title("E13")
     axs[1, 1].set_xlabel("Temps (s)")
     axs[1, 1].grid(True)
 
     axs[1, 2].plot(time, e23, color="tab:brown")
-    axs[1, 2].set_title("ε23")
+    axs[1, 2].set_title("E23")
     axs[1, 2].set_xlabel("Temps (s)")
     axs[1, 2].grid(True)
 
-    fig.suptitle("Déformations ε", fontsize=16)
+    fig.suptitle("Déformations E", fontsize=16)
     # ---------- Déformations e-s ----------’
     fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
 
     axs[0, 0].plot(e11, s11, color="tab:blue")
-    axs[0, 0].set_title("ε11-σ11")
-    axs[0, 0].set_ylabel("σ [MPa]")
+    axs[0, 0].set_title("E11-S11")
+    axs[0, 0].set_xlabel("E11[-]")
+    axs[0, 0].set_ylabel("S11 [MPa]")
     axs[0, 0].grid(True)
 
     axs[0, 1].plot(e22, s22, color="tab:orange")
-    axs[0, 1].set_title("ε22-σ22")
-    axs[0, 1].set_ylabel("σ [MPa]")
+    axs[0, 1].set_title("E22-S22")
+    axs[0, 1].set_xlabel("E22[-]")
+    axs[0, 1].set_ylabel("S22 [MPa]")
     axs[0, 1].grid(True)
 
     axs[0, 2].plot(e33, s33, color="tab:green")
-    axs[0, 2].set_title("ε33-σ33")
-    axs[0, 2].set_ylabel("σ [MPa]")
+    axs[0, 2].set_title("E33-S33")
+    axs[0, 2].set_xlabel("E33[-]")
+    axs[0, 2].set_ylabel("S33 [MPa]")
     axs[0, 2].grid(True)
 
     axs[1, 0].plot(e12, s12, color="tab:red")
-    axs[1, 0].set_xlabel("ε[-]")
-    axs[1, 0].set_ylabel("σ [MPa]")
+    axs[1, 0].set_xlabel("E12[-]")
+    axs[1, 0].set_title("E12-S12")
+    axs[1, 0].set_ylabel("S12 [MPa]")
     axs[1, 0].grid(True)
 
     axs[1, 1].plot(e13, s13, color="tab:purple")
-    axs[1, 1].set_title("ε13-σ13")
-    axs[1, 1].set_xlabel("ε[-]")
+    axs[1, 1].set_title("E13-S13")
+    axs[1, 1].set_xlabel("E13[-]")
+    axs[1, 1].set_ylabel("S13 [MPa]")
     axs[1, 1].grid(True)
 
     axs[1, 2].plot(e23, s23, color="tab:brown")
-    axs[1, 2].set_title("ε23-σ23")
-    axs[1, 2].set_xlabel("ε[-]")
+    axs[1, 2].set_title("E23-S23")
+    axs[1, 2].set_xlabel("E23[-]")
+    axs[1, 2].set_ylabel("S23 [MPa]")
     axs[1, 2].grid(True)
 
     fig.suptitle("Courbes contrainte-déformation", fontsize=16)
@@ -328,7 +342,7 @@ def read_multiple_data(dict_file=None, i=0):
         ("yz", 1, 2),
     ]
 
-    fig, axs = plt.subplots(2, 3, figsize=(15, 8), sharex=True)
+    fig, axs = plt.subplots(2, 3, figsize=(15, 8))
     for filename, params in dict_file.items():
         if params["label"] == "sym1":
             print("qsdq")
@@ -376,8 +390,8 @@ def read_multiple_data(dict_file=None, i=0):
             )
 
             ax.set_title(f"{comp}")
-            ax.set_xlabel("ε [-]")
-            ax.set_ylabel("σ [MPa]")
+            ax.set_xlabel(f"E{comp} [-]")
+            ax.set_ylabel(f"S{comp} [MPa]")
             ax.grid(True)
             ax.legend()
 

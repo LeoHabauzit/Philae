@@ -1,6 +1,7 @@
 import numpy as np
-from continum_mech import *
 from simcoon import simmit as sim
+
+from continum_mech import *
 
 
 def mises_stress(v):

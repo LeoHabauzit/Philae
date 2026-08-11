@@ -4,10 +4,10 @@ Recharge et affiche les courbes de loss depuis le fichier model.pth
 (nécessite que model.pth ait été sauvegardé en format checkpoint complet)
 """
 
-import torch
 import example_utils
+import torch
 
-MODEL_PTH = "model_NO_SMAAC.pth"
+MODEL_PTH = "lstm/models_cuboctahedron40/model_finetuned_OF.pth"
 
 
 def main() -> None:

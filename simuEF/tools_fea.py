@@ -1,10 +1,13 @@
-import numpy as np
-import fedoo as fd
 import os
 from pathlib import Path
+
+import fedoo as fd
 import matplotlib.pyplot as plt
-from simcoon import simmit as sim
+import numpy as np
 import pandas as pd
+from matplotlib import ticker
+from matplotlib.ticker import LogFormatter, LogLocator
+from simcoon import simmit as sim
 
 
 def dev_fea(v):
@@ -111,6 +114,7 @@ def cell_fea(props, material_law, typesim, load_typesim, cell):
 
     print("Running " + typesim + " FE computation")
     results_dir = str(Path(__file__).parent)
+    print(results_dir)
     output_file = typesim
     if not (os.path.isdir(results_dir)):
         os.mkdir(results_dir)
@@ -164,11 +168,11 @@ def cell_fea(props, material_law, typesim, load_typesim, cell):
     pb.nlsolve(dt=0.2, tmax=1, update_dt=True, print_info=1, interval_output=0.01)
 
 
-def process_element_repartition(typesim, cell):
-    base_dir = Path("datas_simu") / cell
+def process_element_repartition(typesim, cell="None"):
+    # base_dir = Path("datas_simu") / cell
 
     results_dir = typesim
-    dataset = fd.read_data(f"simuEF/fdz_files/{typesim}.fdz")
+    dataset = fd.read_data(f"simuEF/{typesim}.fdz")
     if typesim == "shear":
         list_component = {"XY"}
     elif typesim == "tencomp":
@@ -190,8 +194,8 @@ def process_element_repartition(typesim, cell):
 
         print(n_iter)
 
-        data_dir = base_dir / f"S{component}" / f"data_{results_dir}"
-        data_dir.mkdir(parents=True, exist_ok=True)
+        # data_dir = base_dir / f"S{component}" / f"data_{results_dir}"
+        # data_dir.mkdir(parents=True, exist_ok=True)
 
         # list_iter = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
         fig, axes = plt.subplots(5, 5, figsize=(10, 10))
@@ -215,10 +219,27 @@ def process_element_repartition(typesim, cell):
                 fractions = statev[1]
                 bins = np.linspace(0, 1, 101)
                 ax.hist(fractions, bins=bins, edgecolor="black")
+                ax.set_title(f"Itération {i!s}")
+                # if i == 1:
+                ax.set_ylabel("N_elements[-]")
+                ax.set_xlabel(r"$\xi$ [-]")
+                # ax.yaxis.set_major_formatter(
+                #     ticker.FuncFormatter(
+                #         lambda x, pos: f"$10^{{{int(np.log10(x))}}}$" if x > 0 else "0"
+                #     )
+                # )
+                # ax.set_ylim(10000)
+                ax.set_yscale("log")
+                # ax.yaxis.set_major_locator(LogLocator(base=10))
+                # ax.yaxis.set_major_formatter(LogFormatter(base=10))
+        plt.suptitle(
+            "Distribution des éléments traction uniaxiale - RhombicCuboctahedron40 "
+        )
 
-        plt.xlabel("Fraction volumique")
-        plt.ylabel("Nombre d'éléments")
-        plt.title("Distribution des transformations")
+        plt.tight_layout()
+        # plt.xlabel("Fraction volumique")
+        # plt.ylabel("Nombre d'éléments")
+        # plt.title("Distribution des transformations")
         plt.show()
         # np.savetxt(
         #     data_dir / f"Transformation_strain_{results_dir}.txt",
@@ -418,8 +439,7 @@ def run_linear_homogenization(
 
         with open(linear_path, "w") as f:
             f.write("cubic params\n")
-            for val in props_cubic:
-                f.write(f"{val:.8e}\n")
+            f.writelines(f"{val:.8e}\n" for val in props_cubic)
 
     return props_cubic
 

@@ -11,25 +11,27 @@ try:
         _scipy_uu.u = True  # active umfpack, évite le crash dans base.py
 except Exception:
     pass
+import sys
+import time
+from pathlib import Path
+
 import fedoo as fd
 import numpy as np
-
-import sys
-from pathlib import Path
-import time
 import pandas as pd
 from tools_fea import *
 
-
 sys.path.append(str(Path(__file__).resolve().parent.parent))
+from lstm.tools_database import (
+    add_zeros_to_arrays,
+    generer_path_txt,
+    read_multiple_data,
+)
 from tools_homogeneisation import *
-from lstm.tools_database import generer_path_txt, add_zeros_to_arrays
 from Umat.loi_sma import umat_sma_random
-
 
 cell = "RhombicDodecahedron40"
 props_cubic = run_linear_homogenization(f"{cell}")
-props_var = load_variable_props(f"results_params/params_strain_{cell}.txt")
+props_var = load_variable_props(f"results_params/params_smaac_{cell}.txt")
 finalprops = vect_props_smaac(props_var, props_cubic)
 
 
@@ -106,25 +108,25 @@ def simu_fea(stress_target, csv_file="default_filename.csv"):
             failed_sims.append({"index": j, "sim_id": sim_ids[j], "error": str(e)})
             continue
 
-        for k in range(6):
-            pb.bc.remove(-1)
-        pb.bc.add("Neumann", "E_xx", 0)
-        pb.bc.add("Neumann", "E_yy", 0)
-        pb.bc.add("Neumann", "E_zz", 0)
-        pb.bc.add("Neumann", "E_xy", 0)  # conjugate of γ_xy is σ_xy
-        pb.bc.add("Neumann", "E_xz", 0)
-        pb.bc.add("Neumann", "E_yz", 0)
+        # for k in range(6):
+        #     pb.bc.remove(-1)
+        # pb.bc.add("Neumann", "E_xx", 0)
+        # pb.bc.add("Neumann", "E_yy", 0)
+        # pb.bc.add("Neumann", "E_zz", 0)
+        # pb.bc.add("Neumann", "E_xy", 0)  # conjugate of γ_xy is σ_xy
+        # pb.bc.add("Neumann", "E_xz", 0)
+        # pb.bc.add("Neumann", "E_yz", 0)
 
-        try:
-            pb.nlsolve(
-                dt=0.2, tmax=2, t0=1, update_dt=True, print_info=2, interval_output=0.02
-            )
-        except (RuntimeError, NameError) as e:
-            print(
-                f"[WARNING] Simulation {j + 1} (id={sim_ids[j]}) échouée lors de la deuxième résolution : {e}"
-            )
-            failed_sims.append({"index": j, "sim_id": sim_ids[j], "error": str(e)})
-            continue
+        # try:
+        #     pb.nlsolve(
+        #         dt=0.2, tmax=2, t0=1, update_dt=True, print_info=2, interval_output=0.02
+        #     )
+        # except (RuntimeError, NameError) as e:
+        #     print(
+        #         f"[WARNING] Simulation {j + 1} (id={sim_ids[j]}) échouée lors de la deuxième résolution : {e}"
+        #     )
+        #     failed_sims.append({"index": j, "sim_id": sim_ids[j], "error": str(e)})
+        #     continue
         # t2 = time.time()
         # print("Time =", t2 - t1, "s")
         res = pb.get_results(
@@ -172,6 +174,7 @@ def simu_umat(
 ):
     generer_path_txt(
         filename="Umat/data/path_random.txt",
+        n_steps=2,
         temperature_initiale=300,
         Dn_inc=0.02,
         stress_lim=1,
@@ -236,29 +239,30 @@ def simu_umat(
 
 stress_target = np.zeros((1, 6))
 
-stress_target[0, 0] = 88.3501285294759  # s11
-stress_target[0, 1] = 30.802512349702884  # s22
-stress_target[0, 2] = 40.81578603157536  # s33
-stress_target[0, 3] = -80.99841068953306  # s12
-stress_target[0, 4] = -33.48984436799942  # s13
-stress_target[0, 5] = -75.28264504580623  # s23
+stress_target[0, 0] = 90  # s11
+stress_target[0, 1] = -30  # s22
+stress_target[0, 2] = -40  # s33
+stress_target[0, 3] = 80  # s12
+stress_target[0, 4] = 60  # s13
+stress_target[0, 5] = -75  # s23
 
-# simu_fea(stress_target, "ref.csv")
-stress_target_copy1 = stress_target.copy()
-stress_target_copy2 = stress_target.copy()
-stress_target[:, [0, 1]] = stress_target[:, [1, 0]]
-stress_target[:, [4, 5]] = stress_target[:, [5, 4]]  # switch 11 et 22
-print(stress_target)
-# simu_fea(stress_target, "sym1.csv")
-stress_target_copy1[:, [0, 2]] = stress_target_copy1[:, [2, 0]]
-stress_target_copy1[:, [3, 5]] = stress_target_copy1[:, [5, 3]]
-# print(stress_target_copy1)
-# simu_fea(stress_target=stress_target_copy1, csv_file="sym2.csv")
-stress_target_copy2[:, [1, 2]] = stress_target_copy2[:, [2, 1]]
-stress_target_copy2[:, [3, 4]] = stress_target_copy2[:, [4, 3]]
-# simu_umat(stress_target)
-print(stress_target_copy2)
-simu_fea(stress_target=stress_target_copy2, csv_file="sym3.csv")
+# simu_fea(stress_target, csv_file="ref.csv")
+# simu_umat(stress_target, finalprops, "SMAAC", "umat.csv")
+# stress_target_copy1 = stress_target.copy()
+# stress_target_copy2 = stress_target.copy()
+# stress_target[:, [0, 1]] = stress_target[:, [1, 0]]
+# stress_target[:, [4, 5]] = stress_target[:, [5, 4]]  # switch 11 et 22
+# print(stress_target)
+# # simu_fea(stress_target, "sym1.csv")
+# stress_target_copy1[:, [0, 2]] = stress_target_copy1[:, [2, 0]]
+# stress_target_copy1[:, [3, 5]] = stress_target_copy1[:, [5, 3]]
+# # print(stress_target_copy1)
+# # simu_fea(stress_target=stress_target_copy1, csv_file="sym2.csv")
+# stress_target_copy2[:, [1, 2]] = stress_target_copy2[:, [2, 1]]
+# stress_target_copy2[:, [3, 4]] = stress_target_copy2[:, [4, 3]]
+# # simu_umat(stress_target)
+# print(stress_target_copy2)
+# simu_fea(stress_target=stress_target_copy2, csv_file="sym3.csv")
 
 
 # plot_compare(
@@ -269,3 +273,25 @@ simu_fea(stress_target=stress_target_copy2, csv_file="sym3.csv")
 #     ],
 #     i=0,
 # )
+
+# plot_compare(
+#     list_csv=[
+#         "lstm/dataset/test_fea_dataset_23.csv",
+#         "simuEF/csv_files/compare_umat.csv",
+#         "simuEF/csv_files/compare_lstm_tuned.csv",
+#     ],
+#     i=0,
+# )
+dict_file = {
+    "simuEF/csv_files/save_ref.csv": {
+        "color": "black",
+        "linestyle": "-",
+        "label": "Reference",
+    },
+    "simuEF/csv_files/sym3.csv": {
+        "color": "red",
+        "linestyle": "--",
+        "label": "Symmetry y-z",
+    },
+}
+read_multiple_data(dict_file=dict_file)

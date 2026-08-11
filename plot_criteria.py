@@ -1,9 +1,10 @@
+import matplotlib as mpl
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
 from scipy.optimize import root_scalar
+
 from continum_mech import *
 from criteria import *
-import matplotlib as mpl
-from matplotlib.colors import LinearSegmentedColormap
 
 
 def radius_for_von_mises(theta, sigma_y, plane):
@@ -165,7 +166,7 @@ def plot_drucker_ani_radius(ax, props, xi, T, plane="s11-s22", npts=400):
     norm = mpl.colors.Normalize(vmin=0, vmax=1)
 
     color = cmap(norm(xi))
-    ax.plot(x, y, label=f"Drucker Ani{xi}", color=color)
+    ax.plot(x, y, label=rf"SMAAC $\xi={xi}$", color=color)
 
 
 def plot_dfa_contour(ax, sigma_y, params, plane="s11-s22", npts=400):
@@ -209,7 +210,7 @@ def plot_drucker_contour(ax, props, xi, T, plane="s11-s22", npts=400):
                 F[i, j] = get_Phi_forward_SMA(props=props, v=v, xi=xi, T=T, ani=0)
 
     cs = ax.contour(X, Y, F, levels=[0], colors="k")
-    ax.clabel(cs, fmt="Drucker")
+    # ax.clabel(cs, fmt="Drucker")
 
 
 def plot_drucker_ani_contour(ax, props, xi, T, plane="s11-s22", npts=400):

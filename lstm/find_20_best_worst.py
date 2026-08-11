@@ -7,14 +7,15 @@ du jeu de test, calcule l'erreur (MSE) par simulation, puis affiche :
 """
 
 from pathlib import Path
-from torch import randn
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-import torch
-from torchmetrics.regression import WeightedMeanAbsolutePercentageError
-import numpy as np
+
 import example_utils
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 from first_training import RNNModel
+from matplotlib.backends.backend_pdf import PdfPages
+from torch import randn
+from torchmetrics.regression import WeightedMeanAbsolutePercentageError
 
 
 def wmape_verif(y_true, y_pred):
@@ -29,17 +30,21 @@ shuffle_id = 6329
 
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-TEST_CSV = (
-    Path("lstm")
-    / "dataset"
-    / f"datasets_{shuffle_id}"
-    / f"test_shuffled_{shuffle_id}.csv"
-)
-MODEL_PTH = f"lstm/models_cuboctahedron40/model_finetuned_test_{shuffle_id}.pth"
+# TEST_CSV = (
+#     Path("lstm")
+#     / "dataset"
+#     / f"datasets_{shuffle_id}"
+#     / f"test_shuffled_{shuffle_id}.csv"
+# )
+
+TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23_augmented.csv"
+
+# MODEL_PTH = f"lstm/models_cuboctahedron40/model_finetuned_test_{shuffle_id}.pth"
+MODEL_PTH = "lstm/models_cuboctahedron40/model_finetuned_augmented_HS16.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
-HIDDEN_SIZE = 32
+HIDDEN_SIZE = 16
 OUTPUT_SIZE = 6
 NUM_LAYERS = 2
 
@@ -87,7 +92,7 @@ def save_simulation_to_pdf(
     true_stress = y_test_norm[idx] * y_std + y_mean  # dénormalisé
     pred_stress = preds_norm[idx] * y_std + y_mean  # dénormalisé
 
-    title = f"[{category_label}] idx={idx} – MSE={mse[idx]:.6f}"
+    title = f"[{category_label}] idx={idx} – WMAPE={mse[idx]:.6f}"
     print(f"Enregistrement : {title} (sim_id={sim_id})")
 
     example_utils.plot_stress_strain_sample_with_prediction(
@@ -154,10 +159,11 @@ def main() -> None:
         # print(values)
         values.append(wmape(pred_stress[k], true_stress[k]))
         # wmape.update(preds_norm[k], x_test_norm[k])
-    values = np.array(values) * 100
+    values = np.array(values)
+    wmape_val = torch.tensor(values)
     bins = np.linspace(np.min(values), np.max(values), 50)
     plt.hist(values, bins=bins, edgecolor="black")
-    plt.xlabel("Erreur en % (WMAPE)")
+    plt.xlabel("Erreur (WMAPE)")
     plt.ylabel("Prédictions")
     plt.title(
         f"Distribution de l'erreur WMAPE sur le jeu de test shuffle {shuffle_id} - n=60"
@@ -167,7 +173,7 @@ def main() -> None:
     # 7. Calcul du MSE par simulation (en espace normalisé)
     mse = mse_per_simulation(preds_norm, y_test_norm)  # (N,)
 
-    sorted_idx = torch.argsort(mse)
+    sorted_idx = torch.argsort(wmape_val)
     best_idx = sorted_idx[:10].tolist()
     worst_idx = sorted_idx[-10:].tolist()
     worst_idx.reverse()
@@ -176,7 +182,7 @@ def main() -> None:
     plt.figure(figsize=(10, 6))
     bins = np.linspace(np.min(mse), np.max(mse), 50)
     plt.hist(mse, bins=bins, edgecolor="black")
-    plt.xlabel("MSE")
+    plt.xlabel("WMAPE")
     plt.ylabel("Prédictions")
     plt.title("Distribution des MSE sur le jeu de test - n=92")
     plt.show()
@@ -184,83 +190,83 @@ def main() -> None:
     # print("─────────────────────────────────────────────────────\n")
 
     # 8. Dénormalisation et enregistrement dans le PDF
-    # with PdfPages("lstm/best_worst/20Best_predi.pdf") as pdf:
-    #     fig_title = plt.figure(figsize=(10, 4))
-    #     plt.axis("off")
-    #     plt.text(
-    #         0.5,
-    #         0.6,
-    #         "Rapport de prédictions LSTM",
-    #         ha="center",
-    #         va="center",
-    #         fontsize=20,
-    #         fontweight="bold",
-    #     )
-    #     plt.text(
-    #         0.5,
-    #         0.4,
-    #         f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
-    #         ha="center",
-    #         va="center",
-    #         fontsize=12,
-    #     )
-    #     pdf.savefig(fig_title)
-    #     plt.close()
+    with PdfPages("lstm/best_worst/20Best_predi.pdf") as pdf:
+        fig_title = plt.figure(figsize=(10, 4))
+        plt.axis("off")
+        plt.text(
+            0.5,
+            0.6,
+            "Rapport de prédictions LSTM",
+            ha="center",
+            va="center",
+            fontsize=20,
+            fontweight="bold",
+        )
+        plt.text(
+            0.5,
+            0.4,
+            f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
+            ha="center",
+            va="center",
+            fontsize=12,
+        )
+        pdf.savefig(fig_title)
+        plt.close()
 
-    #     # 20 meilleures prédictions
-    #     print("=== 20 MEILLEURES prédictions ===")
-    #     for idx in best_idx:
-    #         save_simulation_to_pdf(
-    #             pdf,
-    #             idx,
-    #             sim_ids_test,
-    #             x_test,
-    #             y_test_norm,
-    #             preds_norm,
-    #             y_std,
-    #             y_mean,
-    #             mse,
-    #             category_label="MEILLEURE",
-    #         )
+        # 20 meilleures prédictions
+        print("=== 20 MEILLEURES prédictions ===")
+        for idx in best_idx:
+            save_simulation_to_pdf(
+                pdf,
+                idx,
+                sim_ids_test,
+                x_test,
+                y_test_norm,
+                preds_norm,
+                y_std,
+                y_mean,
+                wmape_val,
+                category_label="MEILLEURE",
+            )
 
-    #     # 20 pires prédictions
+        # 20 pires prédictions
 
-    # with PdfPages("lstm/best_worst/20_Worst_predi.pdf") as pdf:
-    #     fig_title = plt.figure(figsize=(10, 4))
-    #     plt.axis("off")
-    #     plt.text(
-    #         0.5,
-    #         0.6,
-    #         "Rapport de prédictions LSTM",
-    #         ha="center",
-    #         va="center",
-    #         fontsize=20,
-    #         fontweight="bold",
-    #     )
-    #     plt.text(
-    #         0.5,
-    #         0.4,
-    #         f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
-    #         ha="center",
-    #         va="center",
-    #         fontsize=12,
-    #     )
-    #     pdf.savefig(fig_title)
-    #     plt.close()
-    #     print("\n=== 20 PIRES prédictions ===")
-    #     for idx in worst_idx:
-    #         save_simulation_to_pdf(
-    #             pdf,
-    #             idx,
-    #             sim_ids_test,
-    #             x_test,
-    #             y_test_norm,
-    #             preds_norm,
-    #             y_std,
-    #             y_mean,
-    #             mse,
-    #             category_label="PIRE",
-    #         )
+    with PdfPages("lstm/best_worst/20_Worst_predi.pdf") as pdf:
+        fig_title = plt.figure(figsize=(10, 4))
+        plt.axis("off")
+        plt.text(
+            0.5,
+            0.6,
+            "Rapport de prédictions LSTM",
+            ha="center",
+            va="center",
+            fontsize=20,
+            fontweight="bold",
+        )
+        plt.text(
+            0.5,
+            0.4,
+            f"Modèle : {MODEL_PTH}  |  20 meilleures simulations",
+            ha="center",
+            va="center",
+            fontsize=12,
+        )
+        pdf.savefig(fig_title)
+        plt.close()
+        print("\n=== 20 PIRES prédictions ===")
+        for idx in worst_idx:
+            save_simulation_to_pdf(
+                pdf,
+                idx,
+                sim_ids_test,
+                x_test,
+                y_test_norm,
+                preds_norm,
+                y_std,
+                y_mean,
+                wmape_val,
+                category_label="PIRE",
+            )
 
 
 if __name__ == "__main__":

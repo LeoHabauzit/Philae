@@ -1,12 +1,14 @@
 from pathlib import Path
-from torch import randn
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-import torch
-from torchmetrics.regression import WeightedMeanAbsolutePercentageError
-import numpy as np
+
 import example_utils
-from lstm_example import RNNModel
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from first_training import RNNModel
+from matplotlib.backends.backend_pdf import PdfPages
+from torch import randn
+from torchmetrics.regression import WeightedMeanAbsolutePercentageError
+
 # import seaborn as sns
 
 # sns.set_style("white")
@@ -36,60 +38,60 @@ NUM_LAYERS = 2
 fig, ax = plt.subplots(figsize=(8, 6))
 
 # Boxplots
-
+basedir = "lstm/models_cuboctahedron40/"
 
 files = {
-    "model_NO_SMAAC.pth": {
-        "hidden_size": 32,
-        "color": "red",
-        "linestyle": "--",
-        "label": " No pre-training",
-        "face color": (0, 1, 1, 0.5),
-        # "face color": "none",
-        "edgecolor": "red",
-        # "ax": ax2,
-    },
-    "model_5000.pth": {
-        "hidden_size": 64,
-        "color": "green",
-        "linestyle": "--",
-        "label": "Sans fine tuning",
-        "face color": (1, 0, 1, 0.5),
-        "edgecolor": "pink",
-        # "ax": ax0,
-    },
-    "model_finetuned_5000.pth": {
-        "hidden_size": 64,
-        "color": "green",
-        "linestyle": "--",
-        "label": "Avec fine tuning",
-        "face color": (0, 0, 1, 0.5),
-        "edgecolor": "blue",
-        # "ax": ax0,
-    },
-    "model_finetuned_augmented_HS16.pth": {
+    # basedir + "model_NO_SMAAC.pth": {
+    #     "hidden_size": 32,
+    #     "color": "red",
+    #     "linestyle": "--",
+    #     "label": " No pre-training",
+    #     "face color": (0, 1, 1, 0.5),
+    #     # "face color": "none",
+    #     "edgecolor": "red",
+    #     # "ax": ax2,
+    # },
+    # basedir + "model_5000.pth": {
+    #     "hidden_size": 64,
+    #     "color": "green",
+    #     "linestyle": "--",
+    #     "label": "Sans fine tuning",
+    #     "face color": (1, 0, 1, 0.5),
+    #     "edgecolor": "pink",
+    #     # "ax": ax0,
+    # },
+    # basedir + "model_finetuned_5000.pth": {
+    #     "hidden_size": 64,
+    #     "color": "green",
+    #     "linestyle": "--",
+    #     "label": "Référence",
+    #     "face color": (0, 0, 1, 0.5),
+    #     "edgecolor": "blue",
+    #     # "ax": ax0,
+    # },
+    basedir + "model_finetuned_augmented_HS16.pth": {
         "hidden_size": 16,
         "color": "black",
         "linestyle": "-",
-        "label": "Data augmentation - Hidden Size 16",
+        "label": "Hidden state size 16",
         "face color": (1, 0, 0, 0.5),
         "edgecolor": "red",
         # "ax": ax1,
     },
-    "model_finetuned_augmented_HS32.pth": {
+    basedir + "model_finetuned_augmented_HS32.pth": {
         "hidden_size": 32,
         "color": "blue",
         "linestyle": "-",
-        "label": " Hidden Size 32",
+        "label": " Hidden state size 32",
         "face color": (0, 1, 0, 0.5),
         "edgecolor": "blue",
         # "ax": ax3,
     },
-    "model_finetuned_augmented.pth": {
+    basedir + "model_finetuned_augmented.pth": {
         "hidden_size": 64,
         "color": "red",
         "linestyle": "--",
-        "label": " Hidden Size 64",
+        "label": "Hidden state size 64",
         "face color": (0, 0, 0, 0.5),
         # "face color": "none",
         "edgecolor": "red",
@@ -150,7 +152,7 @@ for i, (model_name, params) in enumerate(files.items(), start=1):
     ecart_type = np.std(values, ddof=1)
     values = np.array(values)
     data.append(values)
-    bins = np.linspace(0, 0.5, 60)
+    bins = np.linspace(0, 0.09, 60)
     # ax.boxplot(
     #     values,
     #     positions=[i],
@@ -168,8 +170,8 @@ for i, (model_name, params) in enumerate(files.items(), start=1):
         # facecolor=params["face color"],
         # density=True,
         label=params["label"]
-        + f" (accu={(1 - moyenne) * 100:.2f}%)"
-        + f" (écart-type={(1 - ecart_type) * 100:.2f}%)",
+        + f" (Précision={(1 - moyenne) * 100:.2f}%)"
+        + f" (Écart-type={(1 - ecart_type) * 100:.2f}%)",
         lw=1.5,
     )
     # params["ax"].hist(
@@ -187,11 +189,11 @@ for i, (model_name, params) in enumerate(files.items(), start=1):
 
 # params["ax"].grid()
 # params["ax"].set_ylim(0, 41)
-plt.title("Comparaison des modèles LSTM sur le jeu de test")
+# plt.title("Comparaison des modèles LSTM sur le jeu de test")
 plt.legend()
 # for model_name, params in files.items():
-ax.set_xlabel("Erreur WMAPE")
-ax.set_ylabel("Nombre de prédictions")
+ax.set_xlabel("Erreur WMAPE [-]")
+ax.set_ylabel("Nombre de prédictions [-]")
 # # Boxplots
 # ax.boxplot(
 #     data,
