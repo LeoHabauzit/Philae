@@ -1,9 +1,10 @@
-import torch
+import random
 from pathlib import Path
+
 import example_utils
+import torch
 from first_training import *
 from tools_database import write_shuffled_repartition_dataset
-import random
 
 # ─────────────────────────────────────────────
 # PARAMÈTRES À MODIFIER SI BESOIN
@@ -15,9 +16,19 @@ write_shuffled_repartition_dataset(
     "lstm/dataset/all_fea_cuboctahedron_augmented.csv", shuffle_id=shuffle_id
 )
 
-TRAIN_FT_CSV = Path("lstm") / "dataset" / "train_shuffled.csv"
+TRAIN_FT_CSV = (
+    Path("lstm")
+    / "dataset"
+    / f"datasets_{shuffle_id}"
+    / f"train_shuffled_{shuffle_id}.csv"
+)
 # VALIDATION_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-VALIDATION_CSV = Path("lstm") / "dataset" / "validation_shuffled.csv"
+VALIDATION_CSV = (
+    Path("lstm")
+    / "dataset"
+    / f"datasets_{shuffle_id}"
+    / f"validation_shuffled_{shuffle_id}.csv"
+)
 
 
 MODEL_PTH = "lstm/models_cuboctahedron40/model_5000_HS32.pth"
