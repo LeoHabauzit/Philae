@@ -30,21 +30,21 @@ shuffle_id = 6329
 
 TRAIN_CSV = Path("lstm") / "dataset" / "train_dataset.csv"
 # TEST_CSV = Path("lstm") / "dataset" / "test_dataset.csv"
-# TEST_CSV = (
-#     Path("lstm")
-#     / "dataset"
-#     / f"datasets_{shuffle_id}"
-#     / f"test_shuffled_{shuffle_id}.csv"
-# )
+TEST_CSV = (
+    Path("lstm")
+    / "dataset"
+    / f"datasets_{shuffle_id}"
+    / f"test_shuffled_{shuffle_id}.csv"
+)
 
-TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23_augmented.csv"
+# TEST_CSV = Path("lstm") / "dataset" / "test_fea_dataset_23_augmented.csv"
 
-# MODEL_PTH = f"lstm/models_cuboctahedron40/model_finetuned_test_{shuffle_id}.pth"
-MODEL_PTH = "lstm/models_cuboctahedron40/model_finetuned_augmented_HS16.pth"
+MODEL_PTH = f"lstm/models_cuboctahedron40/model_finetuned_test_{shuffle_id}.pth"
+# MODEL_PTH = "lstm/models_cuboctahedron40/model_5000_HS32.pth"
 
 # Architecture : doit être IDENTIQUE à celle utilisée à l'entraînement
 INPUT_SIZE = 6
-HIDDEN_SIZE = 16
+HIDDEN_SIZE = 32
 OUTPUT_SIZE = 6
 NUM_LAYERS = 2
 

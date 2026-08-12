@@ -16,14 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional, Tuple
+from typing import Optional, Tuple
 
+import example_utils
 import torch
 from torch import Tensor
 from torch.utils.data import DataLoader, TensorDataset
-
-import example_utils
 
 
 class RNNModel(torch.nn.Module):
@@ -50,9 +50,9 @@ class RNNModel(torch.nn.Module):
     def forward(
         self,
         input_sequence: Tensor,
-        hidden_states: Optional[Tensor] = None,
-        cell_state: Optional[Tensor] = None,
-    ) -> Tuple[Tensor, Tuple[Tensor, Tensor]]:
+        hidden_states: Tensor | None = None,
+        cell_state: Tensor | None = None,
+    ) -> tuple[Tensor, tuple[Tensor, Tensor]]:
         if hidden_states is None or cell_state is None:
             output, (hidden_states, cell_state) = self.rnn(input_sequence)
         else:
@@ -91,9 +91,9 @@ class RNNModel_droppout(torch.nn.Module):
     def forward(
         self,
         input_sequence: Tensor,
-        hidden_states: Optional[Tensor] = None,
-        cell_state: Optional[Tensor] = None,
-    ) -> Tuple[Tensor, Tuple[Tensor, Tensor]]:
+        hidden_states: Tensor | None = None,
+        cell_state: Tensor | None = None,
+    ) -> tuple[Tensor, tuple[Tensor, Tensor]]:
         if hidden_states is None or cell_state is None:
             output, (hidden_states, cell_state) = self.rnn(input_sequence)
         else:
@@ -209,11 +209,9 @@ def main() -> None:
         device = "cpu"
 
     print(f"Using device = {device}")
-    train_dataset_path = (
-        Path("lstm") / Path("dataset") / Path("train_fea_dataset_80_augmented.csv")
-    )
+    train_dataset_path = Path("lstm") / Path("dataset") / Path("train_dataset.csv")
     validation_dataset_path = (
-        Path("lstm") / Path("dataset") / Path("train_fea_50_data_reserve_augmented.csv")
+        Path("lstm") / Path("dataset") / Path("validation_dataset.csv")
     )
     # Load data
     x_train, y_train, sim_ids_train = example_utils.load_data(
@@ -236,7 +234,7 @@ def main() -> None:
     # Datasets and loaders
     train_dataset = TensorDataset(x_train, y_train)
     test_dataset = TensorDataset(x_val, y_val)
-    batch_size = 24
+    batch_size = 512
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
@@ -269,7 +267,7 @@ def main() -> None:
         device=device,
     )
     # example_utils.plot_loss_curves(train_loss_curve, test_loss_curve)
-    weights_path = "model_NO_SMAAC.pth"
+    weights_path = "model_NO_FineTuning.pth"
     torch.save(
         {
             "model_state_dict": model.state_dict(),

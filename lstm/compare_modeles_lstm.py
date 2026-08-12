@@ -41,22 +41,31 @@ fig, ax = plt.subplots(figsize=(8, 6))
 basedir = "lstm/models_cuboctahedron40/"
 
 files = {
-    # basedir + "model_NO_SMAAC.pth": {
-    #     "hidden_size": 32,
-    #     "color": "red",
-    #     "linestyle": "--",
-    #     "label": " No pre-training",
-    #     "face color": (0, 1, 1, 0.5),
-    #     # "face color": "none",
-    #     "edgecolor": "red",
-    #     # "ax": ax2,
-    # },
+    basedir + "model_NO_SMAAC.pth": {
+        "hidden_size": 32,
+        "color": "red",
+        "linestyle": "--",
+        "label": " No pre-learning ",
+        "face color": (0, 1, 1, 0.5),
+        # "face color": "none",
+        "edgecolor": "red",
+        # "ax": ax2,
+    },
+    basedir + "model_5000_HS32.pth": {
+        "hidden_size": 32,
+        "color": "green",
+        "linestyle": "--",
+        "label": "No fine tuning",
+        "face color": (1, 0, 1, 0.5),
+        "edgecolor": "pink",
+        # "ax": ax0,
+    },
     # basedir + "model_5000.pth": {
     #     "hidden_size": 64,
     #     "color": "green",
     #     "linestyle": "--",
-    #     "label": "Sans fine tuning",
-    #     "face color": (1, 0, 1, 0.5),
+    #     "label": "No fine tuning",
+    #     "face color": (0, 0, 1, 0.5),
     #     "edgecolor": "pink",
     #     # "ax": ax0,
     # },
@@ -69,34 +78,34 @@ files = {
     #     "edgecolor": "blue",
     #     # "ax": ax0,
     # },
-    basedir + "model_finetuned_augmented_HS16.pth": {
-        "hidden_size": 16,
-        "color": "black",
-        "linestyle": "-",
-        "label": "Hidden state size 16",
-        "face color": (1, 0, 0, 0.5),
-        "edgecolor": "red",
-        # "ax": ax1,
-    },
+    # basedir + "model_finetuned_augmented_HS16.pth": {
+    #     "hidden_size": 16,
+    #     "color": "black",
+    #     "linestyle": "-",
+    #     "label": "Hidden state size 16",
+    #     "face color": (1, 0, 0, 0.5),
+    #     "edgecolor": "red",
+    #     # "ax": ax1,
+    # },
     basedir + "model_finetuned_augmented_HS32.pth": {
         "hidden_size": 32,
         "color": "blue",
         "linestyle": "-",
-        "label": " Hidden state size 32",
+        "label": " Pre-learning & Fine tuning",
         "face color": (0, 1, 0, 0.5),
         "edgecolor": "blue",
         # "ax": ax3,
     },
-    basedir + "model_finetuned_augmented.pth": {
-        "hidden_size": 64,
-        "color": "red",
-        "linestyle": "--",
-        "label": "Hidden state size 64",
-        "face color": (0, 0, 0, 0.5),
-        # "face color": "none",
-        "edgecolor": "red",
-        # "ax": ax2,
-    },
+    # basedir + "model_finetuned_augmented.pth": {
+    #     "hidden_size": 64,
+    #     "color": "red",
+    #     "linestyle": "--",
+    #     "label": "Hidden state size 64",
+    #     "face color": (0, 0, 0, 0.5),
+    #     # "face color": "none",
+    #     "edgecolor": "red",
+    #     # "ax": ax2,
+    # },
 }
 
 # fig = plt.figure(figsize=(8, 6))
@@ -152,7 +161,7 @@ for i, (model_name, params) in enumerate(files.items(), start=1):
     ecart_type = np.std(values, ddof=1)
     values = np.array(values)
     data.append(values)
-    bins = np.linspace(0, 0.09, 60)
+    bins = np.linspace(0, 0.55, 60)
     # ax.boxplot(
     #     values,
     #     positions=[i],
